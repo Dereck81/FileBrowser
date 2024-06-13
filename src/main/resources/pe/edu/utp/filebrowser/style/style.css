@@ -1,0 +1,63 @@
+/* File: DarkTheme.css */
+
+.root {
+    -fx-base: #202020;
+    -fx-control-inner-background: #202020;
+    -fx-background-color: #202020;
+    -fx-border-color: #202020;
+    -fx-border-insets: -1.4;
+    -fx-background-insets: 2.0, 0, -1.4;
+}
+
+.menu-bar {
+    -fx-background-color: #303030;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #ffffff;
+}
+
+.menu-item .label {
+    -fx-text-fill: #ffffff;
+}
+
+.text-field {
+    -fx-background-color: #303030;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #666666;
+}
+
+.table-row-cell:filled:selected:focused, .table-row-cell:filled:selected,
+.menu-item:focused, .menu-bar:focused, .menu:focused {
+    -fx-background: #FFA500;
+}
+
+.table {
+    -fx-background-color: BLACK;
+}
+
+.menu .menu-item {
+    -fx-background-color: #505050;
+}
+
+.menu-bar .menu .menu-item:focused {
+    -fx-background-color: #FFA500;
+}
+
+.button {
+    -fx-background-color: GRAY;
+    -fx-text-fill: #ffffff;
+}
+
+.button:hover {
+    -fx-background-color: #FFA500;
+}
+
+.button:pressed {
+    -fx-background-color: #BE7F0C;
+}
+
+.dialog-pane {
+    -fx-background-color: #202020;
+    -fx-text-fill: #ffffff;
+}

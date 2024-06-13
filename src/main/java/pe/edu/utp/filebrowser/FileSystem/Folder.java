@@ -1,16 +1,17 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
+import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.DSA.DynamicArray;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public class Directory extends FileEntity{
-    private String directoryName;
+public class Folder extends FileEntity{
+    private String name;
     private DynamicArray<FileEntity> fileContainer;
 
-    public Directory(String directoryName, String directoryPath) {
-        super(FileTypes.DIRECTORY, directoryPath, LocalDate.now());
-        this.directoryName = directoryName;
+    public Folder(String folderName, String directoryPath) {
+        super(FileTypes.FOLDER, directoryPath, LocalDateTime.now());
+        this.name = folderName;
     }
 
     public void addFile(FileEntity file){
@@ -23,12 +24,12 @@ public class Directory extends FileEntity{
         setModificationDate();
     }
 
-    public String getDirectoryName() {
-        return directoryName;
+    public String getName() {
+        return name;
     }
 
-    public void setDirectoryName(String directoryName) {
-        this.directoryName = directoryName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDirectoryPath(){
@@ -43,17 +44,19 @@ public class Directory extends FileEntity{
         return fileContainer;
     }
 
-    public LocalDate getModificationDate() {
+    public LocalDateTime getModificationDate() {
         return super.getModificationDate();
     }
 
     private void setModificationDate(){
-        super.setModificationDate(LocalDate.now());
+        super.setModificationDate(LocalDateTime.now());
     }
 
     public FileTypes getFileType() {
-        return super.getFileTypes();
+        return super.getFileType();
     }
 
-
+    public Pane getPane() {
+        return super.getPane(name);
+    }
 }

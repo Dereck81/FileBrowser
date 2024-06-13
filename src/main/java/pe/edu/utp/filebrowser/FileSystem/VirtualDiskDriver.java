@@ -1,16 +1,17 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
 import pe.edu.utp.filebrowser.DSA.DynamicArray;
+import javafx.scene.layout.Pane;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class VirtualDiskDriver extends FileEntity{
-    private String virtualDiskName;
+    private String name;
     private DynamicArray<FileEntity> fileContainer;
 
     public VirtualDiskDriver(String virtualDiskName){
-        super(FileTypes.VIRTUALDISK, null, LocalDate.now());
-        this.virtualDiskName = virtualDiskName;
+        super(FileTypes.VIRTUALDISK, null, LocalDateTime.now());
+        this.name = virtualDiskName;
     }
 
     public void addFile(FileEntity file){
@@ -24,15 +25,15 @@ public class VirtualDiskDriver extends FileEntity{
     }
 
 
-    public String getVirtualDiskName() {
-        return virtualDiskName;
+    public String getName() {
+        return name;
     }
 
-    public void setVirtualDiskName(String virtualDiskName) {
-        this.virtualDiskName = virtualDiskName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public LocalDate getModificationDate() {
+    public LocalDateTime getModificationDate() {
         return super.getModificationDate();
     }
 
@@ -42,13 +43,16 @@ public class VirtualDiskDriver extends FileEntity{
      * and not when its name or path is modified.
      */
     private void setModificationDate() {
-        super.setModificationDate(LocalDate.now());
+        super.setModificationDate(LocalDateTime.now());
     }
 
     public FileTypes getFileType(){
-        return super.getFileTypes();
+        return super.getFileType();
     }
 
 
+    public Pane getPane(){
+        return super.getPane(name);
+    }
 
 }

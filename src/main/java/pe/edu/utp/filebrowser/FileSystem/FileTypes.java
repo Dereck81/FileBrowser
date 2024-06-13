@@ -1,8 +1,10 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
 public enum FileTypes {
-    DIRECTORY,
+    FOLDER,
     PLAINTEXT,
     VIRTUALDISK,
-    DIRECTACCESS
+    DIRECTACCESS_PLAINTEXT,
+    DIRECTACCESS_FOLDER,
+    DIRECTACCESS_VIRTUALDISK,
 }

@@ -85,7 +85,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>pe.edu.utp.filemanager/pe.edu.utp.filebrowser.FIleBrowser</mainClass>
+                            <mainClass>pe.edu.utp.filemanager/pe.edu.utp.filebrowser.FileBrowser</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

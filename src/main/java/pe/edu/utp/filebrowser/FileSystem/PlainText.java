@@ -1,20 +1,23 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
-import java.time.LocalDate;
+import javafx.scene.layout.Pane;
+
+import java.time.LocalDateTime;
 
 public class PlainText extends FileEntity{
-    private String fileName;
+    private String name;
 
     public PlainText(String fileName, String filePath) {
-        super(FileTypes.PLAINTEXT, filePath, LocalDate.now());
+        super(FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
+        this.name = fileName;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPath(){
@@ -26,7 +29,15 @@ public class PlainText extends FileEntity{
     }
 
     public FileTypes getFileType() {
-        return super.getFileTypes();
+        return super.getFileType();
+    }
+
+    public LocalDateTime getModificationDate() {
+        return super.getModificationDate();
+    }
+
+    public Pane getPane(){
+        return super.getPane(name);
     }
 
 }

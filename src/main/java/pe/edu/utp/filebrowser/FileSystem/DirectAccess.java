@@ -1,25 +1,30 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import javafx.scene.layout.Pane;
 
 public class DirectAccess extends FileEntity {
-    private String shorcutName;
+    private String name;
     private FileEntity fileTarget;
+    private FileTypes type;
 
     public DirectAccess(String shorcutName, String shortcutPath,
                         FileEntity fileTarget) {
-        super(FileTypes.DIRECTACCESS, shortcutPath, LocalDate.now());
-        this.shorcutName = shorcutName;
+
+        super(fileTarget.getFileType(), shortcutPath, LocalDateTime.now());
+        super.setFileType(getFileTypeTarget());
+        this.name = shorcutName;
         this.fileTarget = fileTarget;
     }
 
-    public String getShorcutName() {
-        return shorcutName;
+    public String getName() {
+        return name;
     }
 
-    public void setShorcutName(String shorcutName) {
-        this.shorcutName = shorcutName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getShortcutPath() {
@@ -42,7 +47,7 @@ public class DirectAccess extends FileEntity {
         setModificationDate();
     }
 
-    public LocalDate getModificationDate(){
+    public LocalDateTime getModificationDate(){
         return super.getModificationDate();
     }
 
@@ -52,12 +57,25 @@ public class DirectAccess extends FileEntity {
      * and not when its name or path is modified.
      */
     private void setModificationDate() {
-        super.setModificationDate(LocalDate.now());
+        super.setModificationDate(LocalDateTime.now());
     }
 
 
     public FileTypes getFileType() {
-        return super.getFileTypes();
+        return super.getFileType();
+    }
+
+    private FileTypes getFileTypeTarget(){
+        return switch (fileTarget.getFileType()){
+            case FOLDER -> FileTypes.DIRECTACCESS_FOLDER;
+            case PLAINTEXT -> FileTypes.DIRECTACCESS_PLAINTEXT;
+            case VIRTUALDISK -> FileTypes.DIRECTACCESS_VIRTUALDISK;
+            default -> null;
+        };
+    }
+
+    public Pane getPane(){
+        return super.getPane(name);
     }
 
 }

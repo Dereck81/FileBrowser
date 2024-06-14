@@ -3,17 +3,17 @@ package pe.edu.utp.filebrowser.FileSystem;
 import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.DSA.DynamicArray;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class Folder extends FileEntity{
-    private String name;
-    private DynamicArray<FileEntity> fileContainer;
+    //private DynamicArray<FileEntity> fileContainer;
 
-    public Folder(String folderName, String directoryPath) {
-        super(FileTypes.FOLDER, directoryPath, LocalDateTime.now());
-        this.name = folderName;
+    public Folder(String folderName, Path directoryPath) {
+        super(folderName, FileTypes.FOLDER, directoryPath, LocalDateTime.now());
     }
 
+    /*
     public void addFile(FileEntity file){
         fileContainer.pushBack(file);
         setModificationDate();
@@ -24,25 +24,34 @@ public class Folder extends FileEntity{
         setModificationDate();
     }
 
+     */
+
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
-    public String getDirectoryPath(){
+    public Path getPath(){
         return super.getPath();
     }
 
-    public void setDirectoryPath(String directoryPath){
-        super.setPath(directoryPath);
+    public void setDirectoryPath(Path directoryPath){
+        super.setDirectoryPath(directoryPath);
     }
 
+    public Path getDirectoryPath(){
+        return super.getDirectoryPath();
+    }
+
+    /*
     public DynamicArray<FileEntity> getFileContainer() {
         return fileContainer;
     }
+
+     */
 
     public LocalDateTime getModificationDate() {
         return super.getModificationDate();
@@ -57,6 +66,6 @@ public class Folder extends FileEntity{
     }
 
     public Pane getPane() {
-        return super.getPane(name);
+        return super.getPane();
     }
 }

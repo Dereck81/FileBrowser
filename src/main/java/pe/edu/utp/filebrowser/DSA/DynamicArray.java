@@ -122,6 +122,17 @@ public class DynamicArray<T> implements Iterable<T> {
 		return copy;
 	}
 
+	/*
+	There may be elements that have not been deleted during the copy,
+	but this is not taken into account since adding another element
+	will overwrite it.
+	 */
+	public void delete(int index) {
+		if(index < 0 || index >= size) return;
+		System.arraycopy(arr, index+1, arr, index, size - index - 1);
+		size--;
+	}
+
 	public int find(T x) {
 		for (int i = 0; i < size; i++) {
 			if (x.equals(arr[i]))

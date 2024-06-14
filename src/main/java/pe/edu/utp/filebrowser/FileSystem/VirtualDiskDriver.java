@@ -6,14 +6,13 @@ import javafx.scene.layout.Pane;
 import java.time.LocalDateTime;
 
 public class VirtualDiskDriver extends FileEntity{
-    private String name;
-    private DynamicArray<FileEntity> fileContainer;
+    //private DynamicArray<FileEntity> fileContainer;
 
     public VirtualDiskDriver(String virtualDiskName){
-        super(FileTypes.VIRTUALDISK, null, LocalDateTime.now());
-        this.name = virtualDiskName;
+        super(virtualDiskName, FileTypes.VIRTUALDISK, null, LocalDateTime.now());
     }
 
+    /*
     public void addFile(FileEntity file){
         fileContainer.pushBack(file);
         setModificationDate();
@@ -23,14 +22,15 @@ public class VirtualDiskDriver extends FileEntity{
         for(FileEntity file : files) fileContainer.pushBack(file);
         setModificationDate();
     }
+     */
 
 
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
     public LocalDateTime getModificationDate() {
@@ -52,7 +52,7 @@ public class VirtualDiskDriver extends FileEntity{
 
 
     public Pane getPane(){
-        return super.getPane(name);
+        return super.getPane();
     }
 
 }

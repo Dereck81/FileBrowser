@@ -6,21 +6,31 @@ import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.FileBrowser;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class FileEntity {
+public class FileEntity implements Comparable<FileEntity> {
 
     private FileTypes fileTypes;
-    private String path;
+    private Path directoryPath;
     private LocalDateTime modificationDate;
+    private String name;
     //private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public FileEntity(FileTypes type, String path, LocalDateTime modificationDate) {
+    public FileEntity(String name, FileTypes type, Path directoryPath, LocalDateTime modificationDate) {
         this.fileTypes = type;
-        this.path = path;
         this.modificationDate = modificationDate;
+        this.name = name;
+        this.directoryPath = directoryPath;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setFileType(FileTypes type) {
@@ -31,12 +41,18 @@ public class FileEntity {
         return fileTypes;
     }
 
-    public String getPath() {
-        return path;
+    public Path getPath() {
+        //example: "Disk D/folder1/filename"
+        return directoryPath.resolve(name);
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public Path getDirectoryPath(){
+        //example: "Disk D/folder1"
+        return directoryPath;
+    }
+
+    public void setDirectoryPath(Path directoryPath){
+        this.directoryPath = directoryPath;
     }
 
     public LocalDateTime getModificationDate() {
@@ -71,10 +87,10 @@ public class FileEntity {
         return new ImageView(file.toURI().toString());
     }
 
-    Pane getPane(String nameF){
+    Pane getPane(){
         Pane pane = new Pane();
         ImageView imageView = getImageView();
-        Label name = new Label(nameF);
+        Label name = new Label(this.name);
 
         //
         name.setLayoutX(25);
@@ -87,4 +103,24 @@ public class FileEntity {
         return pane;
     }
 
+    @SuppressWarnings("ComparatorMethodParameterNotUsed")
+    @Override
+    public int compareTo(FileEntity o) {
+        if ( (directoryPath == null && o.getDirectoryPath() == null)
+                || (directoryPath.equals(o.getDirectoryPath())))
+            if (name.equals(o.getName()))
+                return 0; // comment this line if the following lines are not commented
+                //if(fileTypes == o.getFileType()) return 0;
+                //else return -1;
+                //
+                //commented line, because the ext4 file system
+                // is not being used.
+            else return -1;
+        return -1;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

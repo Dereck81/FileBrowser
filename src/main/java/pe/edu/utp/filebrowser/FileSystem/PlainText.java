@@ -2,30 +2,34 @@ package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.layout.Pane;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class PlainText extends FileEntity{
-    private String name;
+    private StringBuilder content = new StringBuilder();
 
-    public PlainText(String fileName, String filePath) {
-        super(FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
-        this.name = fileName;
+    public PlainText(String fileName, Path filePath) {
+        super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
     }
 
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
-    public String getPath(){
+    public Path getDirectoryPath(){
+        return super.getDirectoryPath();
+    }
+
+    public Path getPath(){
         return super.getPath();
     }
 
-    public void setPath(String path){
-        super.setPath(path);
+    public void setDirectoryPath(Path directoryPath){
+        super.setDirectoryPath(directoryPath);
     }
 
     public FileTypes getFileType() {
@@ -36,8 +40,16 @@ public class PlainText extends FileEntity{
         return super.getModificationDate();
     }
 
+    public void setContent(String content){
+        this.content.append(content);
+    }
+
+    public String getContent(){
+        return content.toString();
+    }
+
     public Pane getPane(){
-        return super.getPane(name);
+        return super.getPane();
     }
 
 }

@@ -1,38 +1,40 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
-import java.time.LocalDate;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 import javafx.scene.layout.Pane;
 
 public class DirectAccess extends FileEntity {
-    private String name;
     private FileEntity fileTarget;
     private FileTypes type;
 
-    public DirectAccess(String shorcutName, String shortcutPath,
+    public DirectAccess(String shorcutName, Path shortcutPath,
                         FileEntity fileTarget) {
 
-        super(fileTarget.getFileType(), shortcutPath, LocalDateTime.now());
+        super(shorcutName, fileTarget.getFileType(), shortcutPath, LocalDateTime.now());
         super.setFileType(getFileTypeTarget());
-        this.name = shorcutName;
         this.fileTarget = fileTarget;
     }
 
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        super.setName(name);
     }
 
-    public String getShortcutPath() {
+    public Path getShortcutPath() {
         return super.getPath();
     }
 
-    public void setShortcutPath(String shortcutPath) {
-        super.setPath(shortcutPath);
+    public void setShortcutDirectoryPath(Path shortcutPath) {
+        super.setDirectoryPath(shortcutPath);
+    }
+
+    public Path getShorcutDirectoryPath(){
+        return super.getDirectoryPath();
     }
 
     /*
@@ -75,7 +77,7 @@ public class DirectAccess extends FileEntity {
     }
 
     public Pane getPane(){
-        return super.getPane(name);
+        return super.getPane();
     }
 
 }

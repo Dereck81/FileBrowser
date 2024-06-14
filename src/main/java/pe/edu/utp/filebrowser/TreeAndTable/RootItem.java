@@ -8,7 +8,7 @@ public class RootItem extends FileEntity {
     private String name;
 
     public RootItem(String name) {
-        super(null, null, null);
+        super(null, null, null, null);
         this.name = name;
     }
 

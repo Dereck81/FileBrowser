@@ -6,7 +6,11 @@
     -fx-background-color: #202020;
     -fx-border-color: #202020;
     -fx-border-insets: -1.4;
-    -fx-background-insets: 2.0, 0, -1.4;
+    /*-fx-background-insets: 2.0, 0, -1.4;*/
+}
+
+.vbox-style {
+    -fx-border-color: BLACK;
 }
 
 .menu-bar {
@@ -55,6 +59,15 @@
 
 .button:pressed {
     -fx-background-color: #BE7F0C;
+}
+
+.dialog-pane {
+    -fx-background-color: #202020;
+    -fx-text-fill: #ffffff;
+}
+
+.pane{
+    -fx-border-color: BLACK;
 }
 
 .dialog-pane {

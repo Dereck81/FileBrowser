@@ -1,29 +1,15 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
-import pe.edu.utp.filebrowser.DSA.DynamicArray;
 import javafx.scene.layout.Pane;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class VirtualDiskDriver extends FileEntity{
-    //private DynamicArray<FileEntity> fileContainer;
 
-    public VirtualDiskDriver(String virtualDiskName){
-        super(virtualDiskName, FileTypes.VIRTUALDISK, null, LocalDateTime.now());
+    public VirtualDiskDriver(String virtualDiskName, Path directoryPath){
+        super(virtualDiskName, FileTypes.VIRTUALDISK, directoryPath, LocalDateTime.now());
     }
-
-    /*
-    public void addFile(FileEntity file){
-        fileContainer.pushBack(file);
-        setModificationDate();
-    }
-
-    public void addFiles(FileEntity...files){
-        for(FileEntity file : files) fileContainer.pushBack(file);
-        setModificationDate();
-    }
-     */
-
 
     public String getName() {
         return super.getName();
@@ -42,7 +28,7 @@ public class VirtualDiskDriver extends FileEntity{
      * which only modifies the date when a file is added
      * and not when its name or path is modified.
      */
-    private void setModificationDate() {
+    public void setModificationDate() {
         super.setModificationDate(LocalDateTime.now());
     }
 

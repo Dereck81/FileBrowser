@@ -6,15 +6,15 @@ import java.time.LocalDateTime;
 import javafx.scene.layout.Pane;
 
 public class DirectAccess extends FileEntity {
-    private FileEntity fileTarget;
-    private FileTypes type;
+    private FileEntity targetFile;
 
     public DirectAccess(String shorcutName, Path shortcutPath,
-                        FileEntity fileTarget) {
+                        FileEntity targetFile) {
 
-        super(shorcutName, fileTarget.getFileType(), shortcutPath, LocalDateTime.now());
+        super(shorcutName, targetFile.getFileType(), shortcutPath, LocalDateTime.now());
+        this.targetFile = targetFile;
         super.setFileType(getFileTypeTarget());
-        this.fileTarget = fileTarget;
+
     }
 
     public String getName() {
@@ -26,26 +26,40 @@ public class DirectAccess extends FileEntity {
     }
 
     public Path getShortcutPath() {
-        return super.getPath();
+        return getShortCutPathTarget(); // ???
     }
 
     public void setShortcutDirectoryPath(Path shortcutPath) {
         super.setDirectoryPath(shortcutPath);
     }
 
-    public Path getShorcutDirectoryPath(){
+    public Path getShortcutDirectoryPath(){
         return super.getDirectoryPath();
+    }
+
+    public Path getShortCutPathTarget(){
+        return getFinalTargetFile(targetFile).getPath();
+    }
+
+    public Path getShortCutDirectoryPathTarget(){
+        return getFinalTargetFile(targetFile).getDirectoryPath();
+    }
+
+    public int getSize(){
+        if (getTargetFile() instanceof PlainText){
+            return getTargetFile().getSize();
+        }else return 0;
     }
 
     /*
     There has to be a way for it to get into the directory or file it points to.
      */
-    public FileEntity getFileTarget() {
-        return fileTarget;
+    public FileEntity getTargetFile() {
+        return getFinalTargetFile(targetFile);
     }
 
-    public void setFileTarget(FileEntity fileTarget) {
-        this.fileTarget = fileTarget;
+    public void setTargetFile(FileEntity targetFile) {
+        this.targetFile = targetFile;
         setModificationDate();
     }
 
@@ -68,13 +82,19 @@ public class DirectAccess extends FileEntity {
     }
 
     private FileTypes getFileTypeTarget(){
-        return switch (fileTarget.getFileType()){
-            case FOLDER -> FileTypes.DIRECTACCESS_FOLDER;
-            case PLAINTEXT -> FileTypes.DIRECTACCESS_PLAINTEXT;
-            case VIRTUALDISK -> FileTypes.DIRECTACCESS_VIRTUALDISK;
+        return switch (targetFile.getFileType()){
+            case FOLDER, DIRECTACCESS_FOLDER -> FileTypes.DIRECTACCESS_FOLDER;
+            case PLAINTEXT, DIRECTACCESS_PLAINTEXT -> FileTypes.DIRECTACCESS_PLAINTEXT;
+            case VIRTUALDISK, DIRECTACCESS_VIRTUALDISK -> FileTypes.DIRECTACCESS_VIRTUALDISK;
             default -> null;
         };
     }
+
+    private FileEntity getFinalTargetFile(FileEntity feTarget){
+        if(!(feTarget instanceof DirectAccess)) return feTarget;
+        return getFinalTargetFile((((DirectAccess) feTarget).getTargetFile()));
+    }
+
 
     public Pane getPane(){
         return super.getPane();

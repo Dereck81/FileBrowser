@@ -4,7 +4,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TreeCell;
 import pe.edu.utp.filebrowser.FileSystem.*;
 
-
 public class CellFactory {
 
     public static TreeCell<FileEntity> setCellFactoryTree() {
@@ -37,9 +36,10 @@ public class CellFactory {
             public void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (empty || item == null)
+                if (empty || item == null) {
                     setGraphic(null);
-                else
+                    setText(null);
+                }else
                     // Set a custom graphic based on the type of the element
                     if (item instanceof PlainText)
                         setGraphic(((PlainText) item).getPane());

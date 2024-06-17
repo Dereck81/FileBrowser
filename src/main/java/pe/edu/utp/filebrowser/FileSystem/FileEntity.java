@@ -15,12 +15,14 @@ public class FileEntity implements Comparable<FileEntity> {
     private FileTypes fileTypes;
     private Path directoryPath;
     private LocalDateTime modificationDate;
+    private LocalDateTime creationDate;
     private String name;
     //private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public FileEntity(String name, FileTypes type, Path directoryPath, LocalDateTime modificationDate) {
         this.fileTypes = type;
         this.modificationDate = modificationDate;
+        this.creationDate = modificationDate;
         this.name = name;
         this.directoryPath = directoryPath;
     }
@@ -43,7 +45,7 @@ public class FileEntity implements Comparable<FileEntity> {
 
     public Path getPath() {
         //example: "Disk D/folder1/filename"
-        return directoryPath.resolve(name);
+        return (directoryPath == null) ? Path.of(name) : directoryPath.resolve(name);
     }
 
     public Path getDirectoryPath(){
@@ -67,6 +69,14 @@ public class FileEntity implements Comparable<FileEntity> {
 
     void setModificationDate(LocalDateTime modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public LocalDateTime getCreationDate(){
+        return creationDate;
+    }
+
+    public int getSize(){
+        return 0;
     }
 
     public ImageView getImageView() {
@@ -97,7 +107,6 @@ public class FileEntity implements Comparable<FileEntity> {
         imageView.setFitWidth(15);
         imageView.setFitHeight(15);
         imageView.setX(5);
-
 
         pane.getChildren().addAll(imageView, name);
         return pane;

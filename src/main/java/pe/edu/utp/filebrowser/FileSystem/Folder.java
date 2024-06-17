@@ -13,19 +13,6 @@ public class Folder extends FileEntity{
         super(folderName, FileTypes.FOLDER, directoryPath, LocalDateTime.now());
     }
 
-    /*
-    public void addFile(FileEntity file){
-        fileContainer.pushBack(file);
-        setModificationDate();
-    }
-
-    public void addFiles(FileEntity...files){
-        for (FileEntity file : files) fileContainer.pushBack(file);
-        setModificationDate();
-    }
-
-     */
-
     public String getName() {
         return super.getName();
     }
@@ -57,7 +44,7 @@ public class Folder extends FileEntity{
         return super.getModificationDate();
     }
 
-    private void setModificationDate(){
+    public void setModificationDate(){
         super.setModificationDate(LocalDateTime.now());
     }
 

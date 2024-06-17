@@ -129,7 +129,8 @@ public class DynamicArray<T> implements Iterable<T> {
 	 */
 	public void delete(int index) {
 		if(index < 0 || index >= size) return;
-		System.arraycopy(arr, index+1, arr, index, size - index - 1);
+		if(index != size-1)
+			System.arraycopy(arr, index+1, arr, index, size - index - 1);
 		size--;
 	}
 

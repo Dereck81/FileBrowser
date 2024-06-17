@@ -32,6 +32,10 @@ public class PlainText extends FileEntity{
         super.setDirectoryPath(directoryPath);
     }
 
+    public int getSize(){
+        return content.toString().getBytes().length;
+    }
+
     public FileTypes getFileType() {
         return super.getFileType();
     }
@@ -40,8 +44,13 @@ public class PlainText extends FileEntity{
         return super.getModificationDate();
     }
 
+    private void setModificationDate() {
+        super.setModificationDate(LocalDateTime.now());
+    }
+
     public void setContent(String content){
         this.content.append(content);
+        setModificationDate();
     }
 
     public String getContent(){

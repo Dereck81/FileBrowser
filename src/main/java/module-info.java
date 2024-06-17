@@ -6,6 +6,7 @@ module pe.edu.utp.filebrowser {
     requires com.dlsc.formsfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
+    requires java.instrument;
 
     opens pe.edu.utp.filebrowser to javafx.fxml;
     exports pe.edu.utp.filebrowser;

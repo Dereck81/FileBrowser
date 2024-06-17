@@ -19,22 +19,7 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        /*
-           Here a loop was placed that will go through all the wrappers
-           of the original cause, this is mostly because when an exception
-           is raised in the application, it wraps that exception in several
-           exceptions like InvocationTargetException and Runtime, and in order
-           to get the final cause, we would have to go through all the causes
-           to get to the original.
-       */
-        Throwable e1 = e;
-        Throwable initialCause = e.getCause();
-        Throwable finalCause;
-        while (initialCause!=null){
-            e1 = initialCause;
-            initialCause = initialCause.getCause();
-        }
-        finalCause = e1;
+        Throwable finalCause = getFinalCause(e);
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -46,6 +31,19 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
             alert.setContentText(finalCause.getMessage());
             alert.showAndWait();
         });
+    }
+
+    /*
+       Here a loop was placed that will go through all the wrappers
+       of the original cause, this is mostly because when an exception
+       is raised in the application, it wraps that exception in several
+       exceptions like InvocationTargetException and Runtime, and in order
+       to get the final cause, we would have to go through all the causes
+       to get to the original.
+    */
+    private static Throwable getFinalCause(Throwable e) {
+        if(e.getCause() == null) return e;
+        return getFinalCause(e.getCause());
     }
 
     /**

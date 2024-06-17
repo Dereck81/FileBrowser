@@ -60,7 +60,7 @@ public class Tree {
     private Node root;
 
     public Tree() {
-        root = new Node(new RootItem(null));
+        root = new Node(new RootItem(null, null));
     }
 
     public boolean add(FileEntity file) {
@@ -91,19 +91,35 @@ public class Tree {
 
     private Node getNodeRecursively(Path directoryPath, Node branch){
         Path dp;
-        if(directoryPath == null) return root;
-        if(branch == null) return null;
+
+        if(directoryPath == null || directoryPath.getNameCount() == 0)
+            return root;
+
+        if(branch == null)
+            return null;
+
         if(directoryPath.getNameCount() == 1)
-            return searchNode(branch, directoryPath.toString());
-        else if(directoryPath.getNameCount() == 2) dp = directoryPath.getName(1);
-        else dp = directoryPath.subpath(1, directoryPath.getNameCount());
+            return searchNode(branch, directoryPath.getName(0).toString());
+        else if(directoryPath.getNameCount() == 2)
+            dp = directoryPath.getName(1);
+        else
+            dp = directoryPath.subpath(1, directoryPath.getNameCount());
+
         Node node = searchNode(branch, directoryPath.getName(0).toString());
-        //if(newBranch == null) return null;
         return getNodeRecursively(dp, node);
     }
 
     public FileEntity[] getFilesEntityFromFile(FileEntity file){
         Node parentNode = getNode(file.getDirectoryPath());
+        if(parentNode == null) return null;
+        int i = 0;
+        FileEntity[] fileEntities = new FileEntity[parentNode.size()];
+        for (Node childNode : parentNode.nodes) fileEntities[i++] = childNode.getFile();
+        return fileEntities;
+    }
+
+    public FileEntity[] getFilesEntityFromDirectoryPath(Path directoryPath){
+        Node parentNode = getNode(directoryPath);
         if(parentNode == null) return null;
         int i = 0;
         FileEntity[] fileEntities = new FileEntity[parentNode.size()];

@@ -1,58 +1,79 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.math.BigInteger;
+
 public class HashMap<K, V> {
-    private final int __BUCKETLENGTH__ = 15;
+    private final Integer __BUCKETLENGTH__ = 40;
+    @SuppressWarnings("unchecked")
+    private final Bucket<K, V>[] buckets = new Bucket[__BUCKETLENGTH__];
+    private final DynamicArray<K> generalKeys = new DynamicArray<>();
 
-    private static class KeyValuePair<K1, V1>{
-        private final K1 key;
-        private V1 value;
+    private static class KeyValuePair<K2, V2>{
+        private final K2 key;
+        private V2 value;
 
-        public KeyValuePair(K1 key, V1 value) {
+        public KeyValuePair(K2 key, V2 value) {
             this.key = key;
             this.value = value;
         }
 
-        public K1 getKey() {
+        public K2 getKey() {
             return key;
         }
 
-        public V1 getValue(){
+        public V2 getValue(){
             return value;
         }
 
-        public void setValue(V1 value) {
+        public void setValue(V2 value) {
             this.value = value;
         }
 
     }
 
-    private static class Bucket<K2, V2> {
-        private DynamicArray<KeyValuePair<K2, V2>> bucket_kvps = new DynamicArray<>();
+    private class Bucket<K1, V1> {
+        private final DynamicArray<KeyValuePair<K1, V1>> bucket_kvps = new DynamicArray<>();
 
-        public Bucket(K2 key, V2 value) {
+        @SuppressWarnings("unchecked")
+        public Bucket(K1 key, V1 value) {
             bucket_kvps.pushBack(new KeyValuePair<>(key, value));
+            generalKeys.pushBack((K) key);
         }
 
         public Bucket() {}
 
-        public void addKeyValuePair(K2 key, V2 value) {
+        @SuppressWarnings("unchecked")
+        public void addKeyValuePair(K1 key, V1 value) {
             bucket_kvps.pushBack(new KeyValuePair<>(key, value));
+            generalKeys.pushBack((K) key);
         }
 
         public void removeKeyValuePair(int index){
             bucket_kvps.delete(index);
+            // removeGK?
+
         }
 
         @SuppressWarnings("unchecked")
-        public K2[] getKeys() {
+        public K1[] getKeys() {
             Object[] keys = new Object[bucket_kvps.size()];
             for (int i = 0; i < bucket_kvps.size(); i++)
                 keys[i] = bucket_kvps.at(i).getKey();
-            return (K2[]) keys;
+            return (K1[]) keys;
         }
 
-        public V2 getValue(K2 key) {
-            for(KeyValuePair<K2, V2> pair : bucket_kvps)
+        private void removeGK(K1 key){
+            int indexTarget = 0;
+            for(K key_: generalKeys){
+                if(key_.equals(key)){
+                    generalKeys.delete(indexTarget);
+                    return;
+                }else indexTarget++;
+            }
+        }
+
+        public V1 getValue(K1 key) {
+            for(KeyValuePair<K1, V1> pair : bucket_kvps)
                 if(pair.getKey().equals(key))
                     return pair.getValue();
             return null;
@@ -60,9 +81,6 @@ public class HashMap<K, V> {
 
 
     }
-
-    @SuppressWarnings("unchecked")
-    private Bucket<K, V>[] buckets = new Bucket[__BUCKETLENGTH__];
 
     public HashMap(K key, V value) {
         buckets[indexGenerator(key)] = new Bucket<>(key, value);
@@ -88,12 +106,22 @@ public class HashMap<K, V> {
     public void remove(K key){
         int index = indexGenerator(key);
         int indexTarget = 0;
-        for(K bucket : buckets[index].getKeys()) {
-            if (bucket.equals(key)) {
+        for(K key_ : buckets[index].getKeys()) {
+            if (key_.equals(key)) {
                 buckets[index].removeKeyValuePair(indexTarget);
+                removeDA(key);
                 break;
             } else indexTarget++;
         }
+    }
+
+    private void removeDA(K key){
+        int index = 0;
+        for (K k: generalKeys)
+            if(k.equals(key)){
+                generalKeys.delete(index);
+                return;
+            }else index++;
     }
 
     public boolean contains(K key){
@@ -108,18 +136,33 @@ public class HashMap<K, V> {
         return compressFunction(hashCode(key));
     }
 
-    private long hashCode(K key){
-        if(key == null) throw new IllegalArgumentException("key is null!");
+    private BigInteger hashCode(K key){
+        if(key == null) throw new IllegalArgumentException("Key is null!");
         String ky = key.toString();
         int length = ky.length();
-        long sum = 0;
+        BigInteger sum = BigInteger.ZERO;
+        BigInteger base = BigInteger.valueOf(31);
         for (char c: ky.toCharArray())
-            sum += (int) c * (long) Math.pow(31, length--);
+            sum = sum.add(BigInteger.valueOf((int) c).multiply(base.pow(length--)));
         return sum;
     }
 
-    private int compressFunction(long codeHash){
-        return (int) (codeHash%__BUCKETLENGTH__);
+    public BigInteger djb2(K key) {
+        //int hash = 5381;
+        BigInteger hash = BigInteger.valueOf(5381);
+        String key_ = key.toString();
+        for (int i = 0; i < key_.length(); i++) {
+            hash =  BigInteger.valueOf((long) hash.intValue() << 5 )
+                    .add(hash)
+                    .add(BigInteger.valueOf(key_.charAt(i)));
+            //hash = ((hash << 5) + hash) + key_.charAt(i);
+        }
+
+        return hash;
+    }
+
+    private int compressFunction(BigInteger codeHash){
+        return codeHash.mod(BigInteger.valueOf((long) __BUCKETLENGTH__)).intValue();
     }
 
 }

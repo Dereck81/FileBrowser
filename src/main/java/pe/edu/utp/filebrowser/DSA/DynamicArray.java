@@ -141,4 +141,8 @@ public class DynamicArray<T> implements Iterable<T> {
 		}
 		return -1;
 	}
+
+	public T[] toArray(){
+		return arr;
+	}
 }

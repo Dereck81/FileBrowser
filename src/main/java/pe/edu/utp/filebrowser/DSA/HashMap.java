@@ -3,9 +3,9 @@ package pe.edu.utp.filebrowser.DSA;
 import java.math.BigInteger;
 
 public class HashMap<K, V> {
-    private final Integer __BUCKETLENGTH__ = 40;
+    private final Integer DEFAULT_CAPACITY = 40;
     @SuppressWarnings("unchecked")
-    private final Bucket<K, V>[] buckets = new Bucket[__BUCKETLENGTH__];
+    private final Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
     private final DynamicArray<K> generalKeys = new DynamicArray<>();
 
     private static class KeyValuePair<K2, V2>{
@@ -147,7 +147,7 @@ public class HashMap<K, V> {
         return sum;
     }
 
-    public BigInteger djb2(K key) {
+    private BigInteger djb2(K key) {
         //int hash = 5381;
         BigInteger hash = BigInteger.valueOf(5381);
         String key_ = key.toString();
@@ -162,7 +162,7 @@ public class HashMap<K, V> {
     }
 
     private int compressFunction(BigInteger codeHash){
-        return codeHash.mod(BigInteger.valueOf((long) __BUCKETLENGTH__)).intValue();
+        return codeHash.mod(BigInteger.valueOf((long) DEFAULT_CAPACITY)).intValue();
     }
 
 }

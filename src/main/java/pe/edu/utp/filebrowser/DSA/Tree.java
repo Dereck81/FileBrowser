@@ -11,8 +11,8 @@ public class Tree {
 
     static class Node {
         private final FileEntity fe;
-        private DynamicArray<Node> nodes = new DynamicArray<>();
-        private HashMap<String, Node> hashMap = new HashMap<>();
+        private final DynamicArray<Node> nodes = new DynamicArray<>();
+        private final HashMap<String, Node> fileAssignmentTable = new HashMap<>();
 
         public Node(FileEntity file) {
             this.fe = file;
@@ -24,7 +24,7 @@ public class Tree {
 
         public void removeNode(Node nodeTarget) {
             nodes.delete(nodes.find(nodeTarget));
-            hashMap.remove(nodeTarget.getFile().getName()); // Unused hashmap
+            fileAssignmentTable.remove(nodeTarget.getFile().getName()); // Unused hashmap
         }
 
         public boolean addNode(FileEntity file) {
@@ -32,7 +32,7 @@ public class Tree {
             if(fe instanceof PlainText) return false;
             if(contains(file)) return false;
             Node node = new Node(file);
-            hashMap.put(file.getName(), node); // Unused hashmap
+            fileAssignmentTable.put(file.getName(), node); // Unused hashmap
             nodes.pushBack(node);
             return true;
         }
@@ -44,8 +44,8 @@ public class Tree {
                         return true;
                 return false;
              */
-            if(hashMap.contains(file.getName())){
-                return hashMap.get(file.getName()).getFile().compareTo(file) == 0;
+            if(fileAssignmentTable.contains(file.getName())){
+                return fileAssignmentTable.get(file.getName()).getFile().compareTo(file) == 0;
             }
             return false;
         }
@@ -56,14 +56,13 @@ public class Tree {
 
     }
 
-    private DynamicArray<FileEntity> files = new DynamicArray<>();
     private Node root;
 
     public Tree() {
         root = new Node(new RootItem(null, null));
     }
 
-    public boolean add(FileEntity file) {
+    public boolean push(FileEntity file) {
         Node node = getNode(file.getDirectoryPath());
         if(node == null) return false;
         return node.addNode(file);
@@ -72,13 +71,13 @@ public class Tree {
     public void remove(FileEntity file){
         Node parentNode = getNode(file.getDirectoryPath());
         if(parentNode == null) return;
-        Node childNode = parentNode.hashMap.get(file.getName());
+        Node childNode = parentNode.fileAssignmentTable.get(file.getName());
         if(childNode == null) return;
         parentNode.removeNode(childNode);
     }
 
     private Node searchNode(Node branch, String name){
-        Node node = branch.hashMap.get(name);
+        Node node = branch.fileAssignmentTable.get(name);
         if(node == null) return null;
         if (node.getFile().getFileType() != FileTypes.PLAINTEXT)
             return node;
@@ -109,7 +108,7 @@ public class Tree {
         return getNodeRecursively(dp, node);
     }
 
-    public FileEntity[] getFilesEntityFromFile(FileEntity file){
+    public FileEntity[] getChildFilesEntities(FileEntity file){
         Node parentNode = getNode(file.getDirectoryPath());
         if(parentNode == null) return null;
         int i = 0;
@@ -118,7 +117,7 @@ public class Tree {
         return fileEntities;
     }
 
-    public FileEntity[] getFilesEntityFromDirectoryPath(Path directoryPath){
+    public FileEntity[] getFilesEntitiesInDirectory(Path directoryPath){
         Node parentNode = getNode(directoryPath);
         if(parentNode == null) return null;
         int i = 0;
@@ -127,11 +126,12 @@ public class Tree {
         return fileEntities;
     }
 
-    public FileEntity getFileEntityFromPath(Path path){
+    public FileEntity getFileEntityByPath(Path path){
         Node node = getNode(path);
         if(node == null) return null;
         return node.getFile();
     }
+
 
 
 }

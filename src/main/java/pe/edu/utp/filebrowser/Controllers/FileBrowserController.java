@@ -3,7 +3,6 @@ package pe.edu.utp.filebrowser.Controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -11,7 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.DSA.HashMap;
-import pe.edu.utp.filebrowser.DSA.Stack;
+import pe.edu.utp.filebrowser.DSA.DynamicStack;
 import pe.edu.utp.filebrowser.DSA.Tree;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
@@ -77,15 +76,8 @@ public class FileBrowserController {
     // JavaFX ContextMenus
     private ContextMenu contextMenuEditName;
 
-    // Others
     // FileEntity
     private PlainText selectedFilePT;
-
-    // Tree
-    private Tree fileTree = new Tree();
-
-    // HashMap
-    private HashMap<Path, TreeItem<FileEntity>> hashMapTreeItem = new HashMap<>();
 
     // Controllers
     private EntryNameController entryNameController;
@@ -94,15 +86,24 @@ public class FileBrowserController {
     private final Stage stageEntryName = new Stage();
     private Stage primaryStage;
 
+
+    // DSA
+    // Tree
+    private final Tree fileTree = new Tree();
+
+    // HashMap
+    private final HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
+
+    // Stack
+    private final DynamicStack<Path> BackwardPathStack = new DynamicStack<>();
+    private final DynamicStack<Path> ForwardPathStack = new DynamicStack<>();
+
+    // Others
     // Booleans
     private boolean isDeselectionByUser = true;
 
     // Path
     private Path pathIsSelected = Path.of("\\");
-
-    // Stack
-    private Stack<Path> BackwardPathStack = new Stack<>();
-    private Stack<Path> ForwardPathStack = new Stack<>();
 
 
     public void initialize() {
@@ -125,29 +126,34 @@ public class FileBrowserController {
         tableColumnCreationDate.setReorderable(false);
         tableColumnPath.setReorderable(false);
         tableColumnSize.setReorderable(false);
+
         tableColumnName.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             if (row == null) return null;
             return new javafx.beans.property.SimpleObjectProperty<>(row);
         });
+
         tableColumnModDate.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             if (row == null) return null;
             return new javafx.beans.property
                     .SimpleStringProperty(row.getModificationDate().format(formatter));
         });
+
         tableColumnType.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             if (row == null) return null;
             return new javafx.beans.property
                     .SimpleStringProperty(row.getFileType().toString());
         });
+
         tableColumnCreationDate.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             if (row == null) return null;
             return new javafx.beans.property
                     .SimpleStringProperty(row.getCreationDate().format(formatter));
         });
+
         tableColumnPath.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             if (row == null) return null;
@@ -156,20 +162,25 @@ public class FileBrowserController {
                     (row.getDirectoryPath() == null) ? "\\"
                             : Path.of("\\").resolve(row.getDirectoryPath()).toString());
         });
+
         tableColumnSize.setCellValueFactory(param -> {
             FileEntity row = param.getValue();
             String result = "";
             if (row == null) return null;
+
             if (row instanceof PlainText) result = row.getSize()+" Bytes";
             else if (row instanceof DirectAccess)
                 if (((DirectAccess) row).getTargetFile() instanceof PlainText)
                     result = row.getSize()+" Bytes";
+
             return new javafx.beans.property
                     .SimpleStringProperty(result);
         });
+
         tableView.getSelectionModel().selectedItemProperty().addListener((_) -> {
             if(isDeselectionByUser) deselectListCell(Section.TREEVIEW);
         });
+
         tableView.setOnMouseClicked(event -> {
             if(event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2){
                 if(!handleSelectedCellPressed(tableView, event)){
@@ -191,18 +202,17 @@ public class FileBrowserController {
         });
     }
 
-
-
     private void setupTreeView(){
         treeViewMP.setCellFactory((_) -> CellFactory.setCellFactoryTree());
         treeViewMP.setRoot(rootItemMP);
         treeViewDA.setCellFactory((_) -> CellFactory.setCellFactoryTree());
         treeViewDA.setRoot(rootItemDA);
 
-        treeViewDA.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        treeViewDA.getSelectionModel().selectedItemProperty().addListener((_) -> {
             if(isDeselectionByUser) deselectListCell(Section.TREEVIEW_MYFILES, Section.TABLEVIEW);
         });
-        treeViewMP.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+        treeViewMP.getSelectionModel().selectedItemProperty().addListener((_) -> {
             if(isDeselectionByUser) deselectListCell(Section.TREEVIEW_DIRECTACCESS, Section.TABLEVIEW);
         });
 
@@ -267,7 +277,7 @@ public class FileBrowserController {
 
         if(Objects.equals(target, pathIsSelected)) return;
 
-        if(!target.equals(Path.of("\\")) && !hashMapTreeItem.contains(target)){
+        if(!target.equals(Path.of("\\")) && !fileAssignmentTable.contains(target)){
             textField_inputPath.clear();
             textField_inputPath.setText(generateValidPath(pathIsSelected.toString())); // check
             // alert
@@ -286,7 +296,7 @@ public class FileBrowserController {
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
 
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntityFromDirectoryPath(pathIsSelected));
+        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     private void createSubWindows(){
@@ -321,12 +331,12 @@ public class FileBrowserController {
     }
 
     private boolean createFile(FileEntity fe, TreeItem<FileEntity> treeItemParent){
-        if(!fileTree.add(fe)) return false;
+        if(!fileTree.push(fe)) return false;
         TreeItem<FileEntity> currentFileTI = new TreeItem<>(fe);
         treeItemParent.getChildren().add(currentFileTI);
-        hashMapTreeItem.put(fe.getPath(), currentFileTI);
+        fileAssignmentTable.put(fe.getPath(), currentFileTI);
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntityFromFile(fe));
+        tableView.getItems().addAll(fileTree.getChildFilesEntities(fe));
         return true;
     }
 
@@ -347,7 +357,7 @@ public class FileBrowserController {
         if(name.isEmpty() || name.isBlank()) return;
         if(pathIsSelected.equals(Path.of("\\"))) return;
         Folder folder = new Folder(name, pathIsSelected);
-        TreeItem<FileEntity> treeItemParent = hashMapTreeItem.get(folder.getDirectoryPath());
+        TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(folder.getDirectoryPath());
         createFile(folder, treeItemParent);
     }
 
@@ -358,7 +368,7 @@ public class FileBrowserController {
         if(name.isEmpty() || name.isBlank()) return;
         if(pathIsSelected.equals(Path.of("\\"))) return;
         PlainText plainText = new PlainText(name, pathIsSelected);
-        TreeItem<FileEntity> treeItemParent = hashMapTreeItem.get(plainText.getDirectoryPath());
+        TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(plainText.getDirectoryPath());
         createFile(plainText, treeItemParent);
     }
 
@@ -372,7 +382,7 @@ public class FileBrowserController {
         name += " - Direct Access";
 
         DirectAccess directAccess = new DirectAccess(name, pathIsSelected, targetFile);
-        TreeItem<FileEntity> treeItemParent = hashMapTreeItem.get(directAccess.getShortcutDirectoryPath());
+        TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(directAccess.getShortcutDirectoryPath());
         TreeItem<FileEntity> currentFileTI1 = new TreeItem<>(directAccess);
         if(createFile(directAccess, treeItemParent))
             rootItemDA.getChildren().add(currentFileTI1);
@@ -388,7 +398,7 @@ public class FileBrowserController {
         textField_inputPath.clear();
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntityFromDirectoryPath(pathIsSelected));
+        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     @FXML
@@ -401,7 +411,7 @@ public class FileBrowserController {
         textField_inputPath.clear();
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntityFromDirectoryPath(pathIsSelected));
+        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     @FXML
@@ -415,17 +425,6 @@ public class FileBrowserController {
 
     @FXML
     protected void test(){
-        VirtualDiskDriver c = new VirtualDiskDriver("Disk C", rootItemMP.getValue().getPath());
-        VirtualDiskDriver d = new VirtualDiskDriver("Disk D", rootItemMP.getValue().getPath());
-        System.out.println(fileTree.add(c));
-        System.out.println(fileTree.add(d));
-        rootItemMP.getChildren().add(new TreeItem<>(c));
-        rootItemDA.getChildren().add(new TreeItem<>(d));
-        Folder f = new Folder("asd", Path.of(c.getName()));
-        if(fileTree.add(f)) System.out.println("Se agregó");
-        System.out.println(f.getDirectoryPath());
-        Node asd = new Label("asd");
-        System.out.println((null instanceof Label));
     }
 
     private void openTextEditor(FileEntity fileEntity){
@@ -524,6 +523,7 @@ public class FileBrowserController {
         this.primaryStage = stage;
     }
 
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public void deselectListCell(Section...sections) {
         isDeselectionByUser = false;
         for(Section section: sections)

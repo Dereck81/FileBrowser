@@ -3,7 +3,7 @@ package pe.edu.utp.filebrowser.DSA;
 import java.util.Arrays;
 import java.util.List;
 
-public class Stack<T> {
+public class DynamicStack<T> {
     private final DynamicArray<T> arr;
     private int top;
 
@@ -11,7 +11,7 @@ public class Stack<T> {
      * Constructs a stack with the specified capacity.
      *
      */
-    public Stack(){
+    public DynamicStack(){
         //arr = (T[]) new Object[capacity];
         arr = new DynamicArray<>();
         top = -1;

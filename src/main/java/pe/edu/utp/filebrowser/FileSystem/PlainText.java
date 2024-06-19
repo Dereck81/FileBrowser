@@ -2,10 +2,13 @@ package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.layout.Pane;
 
-import java.nio.file.Path;
+import java.io.Serial;
+import java.io.Serializable;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.LocalDateTime;
 
-public class PlainText extends FileEntity{
+public class PlainText extends FileEntity implements Serializable {
+
     private StringBuilder content = new StringBuilder();
 
     public PlainText(String fileName, Path filePath) {

@@ -2,10 +2,11 @@ package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.layout.Pane;
 
-import java.nio.file.Path;
+import java.io.Serializable;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.LocalDateTime;
 
-public class VirtualDiskDriver extends FileEntity{
+public class VirtualDiskDriver extends FileEntity implements Serializable {
 
     public VirtualDiskDriver(String virtualDiskName, Path directoryPath){
         super(virtualDiskName, FileTypes.VIRTUALDISK, directoryPath, LocalDateTime.now());

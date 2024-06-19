@@ -1,11 +1,12 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
-import java.nio.file.Path;
+import java.io.Serializable;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.LocalDateTime;
 
 import javafx.scene.layout.Pane;
 
-public class DirectAccess extends FileEntity {
+public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity targetFile;
 
     public DirectAccess(String shorcutName, Path shortcutPath,

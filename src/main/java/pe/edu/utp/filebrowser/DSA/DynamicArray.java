@@ -1,5 +1,6 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -8,7 +9,7 @@ import java.util.NoSuchElementException;
  * @param <T>
  */
 
-public class DynamicArray<T> implements Iterable<T> {
+public class DynamicArray<T> implements Iterable<T>, Serializable {
 	private T[] arr;
 	private int size;
 	private int capacity;
@@ -25,6 +26,13 @@ public class DynamicArray<T> implements Iterable<T> {
 		capacity = cap;
 		size = 0;
 		arr = (T[]) new Object[capacity];
+	}
+
+	@SuppressWarnings("unchecked")
+	public DynamicArray(T...elements) {
+		arr = elements;
+		capacity = elements.length;
+		size = elements.length;
 	}
 
 	public Iterator<T> iterator() {
@@ -140,9 +148,5 @@ public class DynamicArray<T> implements Iterable<T> {
 				return i;
 		}
 		return -1;
-	}
-
-	public T[] toArray(){
-		return arr;
 	}
 }

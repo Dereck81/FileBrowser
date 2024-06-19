@@ -1,9 +1,10 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class DynamicStack<T> {
+public class DynamicStack<T> implements Serializable {
     private final DynamicArray<T> arr;
     private int top;
 

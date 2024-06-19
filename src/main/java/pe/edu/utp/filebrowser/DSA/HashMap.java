@@ -1,14 +1,18 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-public class HashMap<K, V> {
+public class HashMap<K, V> implements Serializable {
     private final Integer DEFAULT_CAPACITY = 40;
     @SuppressWarnings("unchecked")
     private final Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
     private final DynamicArray<K> generalKeys = new DynamicArray<>();
+    private int size = 0;
 
-    private static class KeyValuePair<K2, V2>{
+    private static class KeyValuePair<K2, V2> implements Serializable{
         private final K2 key;
         private V2 value;
 
@@ -31,13 +35,14 @@ public class HashMap<K, V> {
 
     }
 
-    private class Bucket<K1, V1> {
+    private class Bucket<K1, V1> implements Serializable {
         private final DynamicArray<KeyValuePair<K1, V1>> bucket_kvps = new DynamicArray<>();
 
         @SuppressWarnings("unchecked")
         public Bucket(K1 key, V1 value) {
             bucket_kvps.pushBack(new KeyValuePair<>(key, value));
             generalKeys.pushBack((K) key);
+            size++;
         }
 
         public Bucket() {}
@@ -46,12 +51,16 @@ public class HashMap<K, V> {
         public void addKeyValuePair(K1 key, V1 value) {
             bucket_kvps.pushBack(new KeyValuePair<>(key, value));
             generalKeys.pushBack((K) key);
+            size++;
         }
 
-        public void removeKeyValuePair(int index){
-            bucket_kvps.delete(index);
-            // removeGK?
-
+        @SuppressWarnings("unchecked")
+        public void removeKeyValuePair(K1 key){
+            int idx = find(key);
+            if (idx == -1) return;
+            bucket_kvps.delete(idx);
+            generalKeys.delete(generalKeys.find((K) key));
+            size--;
         }
 
         @SuppressWarnings("unchecked")
@@ -62,21 +71,19 @@ public class HashMap<K, V> {
             return (K1[]) keys;
         }
 
-        private void removeGK(K1 key){
-            int indexTarget = 0;
-            for(K key_: generalKeys){
-                if(key_.equals(key)){
-                    generalKeys.delete(indexTarget);
-                    return;
-                }else indexTarget++;
-            }
+        private int find(K1 key){
+            int i = 0;
+            for(KeyValuePair<K1, V1> pair : bucket_kvps)
+                if(pair.getKey().equals(key))
+                    return i;
+                else i++;
+            return -1;
         }
 
         public V1 getValue(K1 key) {
-            for(KeyValuePair<K1, V1> pair : bucket_kvps)
-                if(pair.getKey().equals(key))
-                    return pair.getValue();
-            return null;
+            int idx = find(key);
+            if(idx == -1) return null;
+            return bucket_kvps.at(idx).getValue();
         }
 
 
@@ -103,33 +110,41 @@ public class HashMap<K, V> {
         return buckets[index].getValue(key);
     }
 
-    public void remove(K key){
-        int index = indexGenerator(key);
-        int indexTarget = 0;
-        for(K key_ : buckets[index].getKeys()) {
-            if (key_.equals(key)) {
-                buckets[index].removeKeyValuePair(indexTarget);
-                removeDA(key);
-                break;
-            } else indexTarget++;
-        }
+    @SuppressWarnings("unchecked")
+    public K[] getKeys() {
+        Object[] keys = new Object[generalKeys.size()];
+        for (int i = 0; i < generalKeys.size(); i++)
+            keys[i] =  generalKeys.at(i);
+        return (K[]) keys;
     }
 
-    private void removeDA(K key){
-        int index = 0;
-        for (K k: generalKeys)
-            if(k.equals(key)){
-                generalKeys.delete(index);
-                return;
-            }else index++;
+    @SuppressWarnings("unchecked")
+    public K[] getKeys(Predicate<K> condition){
+        Object[] keys = new Object[generalKeys.size()];
+        for (int i = 0; i < generalKeys.size(); i++) {
+            K key = generalKeys.at(i);
+            if (condition.test(key))
+                keys[i] = generalKeys.at(i);
+        }
+        return (K[]) keys;
+    }
+
+    public void remove(K key){
+        int index = indexGenerator(key);
+        if(buckets[index] == null) return;
+        buckets[index].removeKeyValuePair(key);
     }
 
     public boolean contains(K key){
         int index = indexGenerator(key);
         if(buckets[index] == null) return false;
-        for(K bucket : buckets[index].getKeys())
-            if(bucket.equals(key)) return true;
+        for(K key_ : buckets[index].getKeys())
+            if(key_.equals(key)) return true;
         return false;
+    }
+
+    public int getSize(){
+        return size;
     }
 
     private int indexGenerator(K key){

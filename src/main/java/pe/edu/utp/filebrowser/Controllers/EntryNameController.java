@@ -49,6 +49,7 @@ public class EntryNameController {
         textFieldName.setText(name);
     }
 
+
     private Stage getStage(){
         return (Stage) buttonAccept.getScene().getWindow();
     }

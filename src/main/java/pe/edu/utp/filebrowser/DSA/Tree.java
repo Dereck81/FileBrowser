@@ -5,11 +5,12 @@ import pe.edu.utp.filebrowser.FileSystem.FileTypes;
 import pe.edu.utp.filebrowser.FileSystem.PlainText;
 import pe.edu.utp.filebrowser.TreeAndTable.RootItem;
 
-import java.nio.file.Path;
+import java.io.Serializable;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 
-public class Tree {
+public class Tree implements Serializable {
 
-    static class Node {
+    static class Node implements Serializable{
         private final FileEntity fe;
         private final DynamicArray<Node> nodes = new DynamicArray<>();
         private final HashMap<String, Node> fileAssignmentTable = new HashMap<>();

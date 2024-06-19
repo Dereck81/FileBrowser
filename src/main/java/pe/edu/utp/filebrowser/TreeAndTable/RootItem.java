@@ -6,17 +6,18 @@ import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.FileEntity;
 import pe.edu.utp.filebrowser.FileSystem.FileTypes;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 
 import java.io.File;
-import java.nio.file.Path;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class RootItem extends FileEntity {
+public class RootItem extends FileEntity implements Serializable {
     private String name;
     private FileTypes fileType;
 
     public RootItem(String name, FileTypes fileType) {
-        super(null, null, Path.of("\\"), null);
+        super(null, null, new Path(Path.separatorToUse), null);
         this.name = name;
         this.fileType = fileType;
     }

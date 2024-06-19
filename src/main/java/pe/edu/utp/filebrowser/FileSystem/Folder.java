@@ -3,10 +3,11 @@ package pe.edu.utp.filebrowser.FileSystem;
 import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.DSA.DynamicArray;
 
-import java.nio.file.Path;
+import java.io.Serializable;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.LocalDateTime;
 
-public class Folder extends FileEntity{
+public class Folder extends FileEntity implements Serializable {
     //private DynamicArray<FileEntity> fileContainer;
 
     public Folder(String folderName, Path directoryPath) {

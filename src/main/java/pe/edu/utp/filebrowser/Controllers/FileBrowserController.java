@@ -5,7 +5,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -14,6 +17,7 @@ import pe.edu.utp.filebrowser.DSA.DynamicStack;
 import pe.edu.utp.filebrowser.DSA.Tree;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
+import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
 import pe.edu.utp.filebrowser.TreeAndTable.RootItem;
 import pe.edu.utp.filebrowser.Utilites.ConfirmationOptions;
@@ -23,7 +27,7 @@ import pe.edu.utp.filebrowser.Utilites.Section;
 import static pe.edu.utp.filebrowser.TreeAndTable.CellUtilityManager.handleSelectedCellPressed;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -66,7 +70,11 @@ public class FileBrowserController {
 
     // Pane's
     @FXML
-    private Pane paneTextEditor, paneTableView;
+    private Pane paneTextEditor, paneTableView, paneInfo;
+
+    // Label
+    @FXML
+    private Label labelAction, labelFileName, labelPathFileName;
 
     // Buttons
     @FXML
@@ -74,7 +82,9 @@ public class FileBrowserController {
 
     // JavaFX element's without @FXML tag
     // JavaFX ContextMenus
-    private ContextMenu contextMenuEditName;
+    private ContextMenu contextMenuTableV = new ContextMenu();
+    private ContextMenu contextMenuTreeMP = new ContextMenu();
+    private ContextMenu contextMenuTreeDA = new ContextMenu();
 
     // FileEntity
     private PlainText selectedFilePT;
@@ -97,20 +107,95 @@ public class FileBrowserController {
     // Stack
     private final DynamicStack<Path> BackwardPathStack = new DynamicStack<>();
     private final DynamicStack<Path> ForwardPathStack = new DynamicStack<>();
+    private final DynamicStack<FileEntity> fileTransferStack = new DynamicStack<>();
 
     // Others
     // Booleans
     private boolean isDeselectionByUser = true;
 
     // Path
-    private Path pathIsSelected = Path.of("\\");
+    private Path pathIsSelected = new Path(Path.separatorToUse);
+    private final Path rootPath = new Path(Path.separatorToUse);
 
 
     public void initialize() {
+        setupContextMenu();
         setupTableView();
         setupTreeView();
         createSubWindows();
     }
+
+    private void setupContextMenu(){
+        MenuItem copyPathTableV = new MenuItem("Copy Path");
+        copyPathTableV.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            copyToClipboard(fe);
+        });
+        MenuItem copyPathTreeMP = new MenuItem("Copy Path");
+        copyPathTreeMP.setOnAction(_ -> {
+            FileEntity fe = treeViewMP.getSelectionModel().getSelectedItem().getValue();
+            copyToClipboard(fe);
+        });
+        MenuItem copyPathTreeDA = new MenuItem("Copy Path");
+        copyPathTreeDA.setOnAction(_ -> {
+            FileEntity fe = treeViewDA.getSelectionModel().getSelectedItem().getValue();
+            copyToClipboard(fe);
+        });
+        MenuItem editNameTableV = new MenuItem("Edit Name");
+        editNameTableV.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            editName(fe);
+            deselectListCell(Section.ALL);
+        });
+        MenuItem editNameTreeMP = new MenuItem("Edit Name");
+        editNameTreeMP.setOnAction(_ -> {
+            FileEntity fe = treeViewMP.getSelectionModel().getSelectedItem().getValue();
+            editName(fe);
+            deselectListCell(Section.ALL);
+        });
+        MenuItem editNameTreeDA = new MenuItem("Edit Name");
+        editNameTreeDA.setOnAction(_ -> {
+            FileEntity fe = treeViewDA.getSelectionModel().getSelectedItem().getValue();
+            editName(fe);
+
+        });
+        MenuItem copy = new MenuItem("Copy");
+        copy.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            copyFileEntity(fe);
+        });
+
+
+
+
+        contextMenuTableV.getItems().setAll(editNameTableV, copyPathTableV, copy);
+    }
+
+    private void editName(FileEntity fe){
+        if(fe == null) return;
+
+        deselectListCell(Section.ALL);
+    }
+
+    private void copyFileEntity(FileEntity fe){
+        if(fe == null) return;
+        if(fileTransferStack.size() == 1) fileTransferStack.clear();
+        fileTransferStack.push(fe);
+        labelAction.setText("Copy");
+        labelFileName.setText(fe.getName());
+        labelPathFileName.setText(fe.getDirectoryPath().getPath());
+        paneInfo.setVisible(true);
+    }
+
+    private void copyToClipboard(FileEntity fe){
+        if(fe == null) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(fe.getPath().toString());
+        clipboard.setContent(content);
+    }
+
+
 
     private void setupTableView(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -158,9 +243,7 @@ public class FileBrowserController {
             FileEntity row = param.getValue();
             if (row == null) return null;
             return new javafx.beans.property
-                    .SimpleStringProperty(
-                    (row.getDirectoryPath() == null) ? "\\"
-                            : Path.of("\\").resolve(row.getDirectoryPath()).toString());
+                    .SimpleStringProperty(row.getDirectoryPath().getPath());
         });
 
         tableColumnSize.setCellValueFactory(param -> {
@@ -179,6 +262,13 @@ public class FileBrowserController {
 
         tableView.getSelectionModel().selectedItemProperty().addListener((_) -> {
             if(isDeselectionByUser) deselectListCell(Section.TREEVIEW);
+        });
+
+        tableView.setContextMenu(contextMenuTableV);
+
+        tableView.setOnContextMenuRequested(contextMenuEvent -> {
+            boolean flag = tableView.getSelectionModel().getSelectedItems().isEmpty();
+            if(flag) contextMenuTableV.hide();
         });
 
         tableView.setOnMouseClicked(event -> {
@@ -277,10 +367,15 @@ public class FileBrowserController {
 
         if(Objects.equals(target, pathIsSelected)) return;
 
-        if(!target.equals(Path.of("\\")) && !fileAssignmentTable.contains(target)){
+        if(!target.equals(rootPath) && !fileAssignmentTable.contains(target)){
             textField_inputPath.clear();
             textField_inputPath.setText(generateValidPath(pathIsSelected.toString())); // check
             // alert
+            return;
+        }
+
+        if(fileAssignmentTable.get(target).getValue() instanceof PlainText){
+            openTextEditor(fileAssignmentTable.get(target).getValue());
             return;
         }
 
@@ -355,7 +450,7 @@ public class FileBrowserController {
         runSubWindow("", "Create Folder");
         String name = entryNameController.getName();
         if(name.isEmpty() || name.isBlank()) return;
-        if(pathIsSelected.equals(Path.of("\\"))) return;
+        if(pathIsSelected.equals(rootPath)) return;
         Folder folder = new Folder(name, pathIsSelected);
         TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(folder.getDirectoryPath());
         createFile(folder, treeItemParent);
@@ -366,7 +461,7 @@ public class FileBrowserController {
         runSubWindow("", "Create PlainText");
         String name = entryNameController.getName();
         if(name.isEmpty() || name.isBlank()) return;
-        if(pathIsSelected.equals(Path.of("\\"))) return;
+        if(pathIsSelected.equals(rootPath)) return;
         PlainText plainText = new PlainText(name, pathIsSelected);
         TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(plainText.getDirectoryPath());
         createFile(plainText, treeItemParent);
@@ -374,7 +469,7 @@ public class FileBrowserController {
 
     @FXML
     private void createShortCut(){
-        if(pathIsSelected.equals(Path.of("\\"))) return;
+        if(pathIsSelected.equals(rootPath)) return;
         runSubWindow("", "Create ShortCut");
         FileEntity targetFile = tableView.getSelectionModel().getSelectedItem();
         String name = entryNameController.getName();
@@ -424,7 +519,13 @@ public class FileBrowserController {
     }
 
     @FXML
-    protected void test(){
+    protected void test() throws Exception{
+        //fileAssignmentTable.getKeys();
+        //ObjectSerializationUtil.Serializable_(fileAssignmentTable, fileTree, "C:\\Users\\DERECK\\IdeaProjects\\FileBrowser\\src\\main\\resources\\pe\\edu\\utp\\filebrowser\\object1.ser");
+        //ObjectSerializationUtil.test(new VirtualDiskDriver("asd", Path.of("asd")));
+
+
+
     }
 
     private void openTextEditor(FileEntity fileEntity){
@@ -503,13 +604,13 @@ public class FileBrowserController {
 
     private Path generateValidPath(Path path){
         String auxPath = generateValidPath(path.toString());
-        return Path.of(auxPath);
+        return new Path(auxPath);
     }
 
     @FXML
     private void navigateToDirectory(){
         String inputPath = textField_inputPath.getText();
-        Path path = generateValidPath(Path.of(inputPath));
+        Path path = new Path(Path.generateValidPath(inputPath, true)); ////////asdasdasdasd
         if(Objects.equals(path, BackwardPathStack.peek())) backwardPath();
         else gotToDirectory(path);
     }

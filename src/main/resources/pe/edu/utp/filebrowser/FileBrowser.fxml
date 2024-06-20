@@ -78,10 +78,6 @@
                   <MenuItem mnemonicParsing="false" onAction="#createPlainText" text="Create a new plain text" />
                   <MenuItem mnemonicParsing="false" onAction="#createShortCut" text="Create a new shorcut" />
                   <MenuItem mnemonicParsing="false" onAction="#convertToPhysicalDirectory" text="Create file directory on hard drive" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Edit name" />
-                  <MenuItem mnemonicParsing="false" text="Cut" />
-                  <MenuItem mnemonicParsing="false" text="Copy" />
               </items>
             </Menu>
       </menus>

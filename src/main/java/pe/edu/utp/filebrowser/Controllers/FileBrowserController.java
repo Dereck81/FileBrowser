@@ -10,6 +10,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.DSA.HashMap;
@@ -17,6 +18,7 @@ import pe.edu.utp.filebrowser.DSA.DynamicStack;
 import pe.edu.utp.filebrowser.DSA.Tree;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
+import pe.edu.utp.filebrowser.IO.IO;
 import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
 import pe.edu.utp.filebrowser.TreeAndTable.RootItem;
@@ -26,9 +28,12 @@ import pe.edu.utp.filebrowser.Utilites.Section;
 
 import static pe.edu.utp.filebrowser.TreeAndTable.CellUtilityManager.handleSelectedCellPressed;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import pe.edu.utp.filebrowser.FileSystem.Path;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class FileBrowserController {
@@ -41,6 +46,10 @@ public class FileBrowserController {
     // MenuBar
     @FXML
     private MenuBar menuBar;
+
+    // Menu
+    @FXML
+    private Menu menuOpenRecentFile;
 
     // TreeView
     @FXML
@@ -82,9 +91,16 @@ public class FileBrowserController {
 
     // JavaFX element's without @FXML tag
     // JavaFX ContextMenus
-    private ContextMenu contextMenuTableV = new ContextMenu();
-    private ContextMenu contextMenuTreeMP = new ContextMenu();
-    private ContextMenu contextMenuTreeDA = new ContextMenu();
+    private final ContextMenu contextMenuTableV = new ContextMenu();
+    private final ContextMenu contextMenuTreeMP = new ContextMenu();
+    private final ContextMenu contextMenuTreeDA = new ContextMenu();
+    private final ContextMenu contextMenuFO = new ContextMenu();
+
+    // File Chooser
+    private FileChooser fileChooserSaveFile, fileChooserOpen;
+
+    // File
+    private File file;
 
     // FileEntity
     private PlainText selectedFilePT;
@@ -120,9 +136,25 @@ public class FileBrowserController {
 
     public void initialize() {
         setupContextMenu();
+        setupFileChoosers();
         setupTableView();
         setupTreeView();
         createSubWindows();
+    }
+
+    private void setupFileChoosers(){
+        // fileChooserOpen
+        fileChooserOpen = new FileChooser();
+        fileChooserOpen.setTitle("Open File");
+        fileChooserOpen.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("SAV", "*.sav")
+        );
+        // fileChooserSaveFile
+        fileChooserSaveFile = new FileChooser();
+        fileChooserSaveFile.setTitle("Save File");
+        fileChooserSaveFile.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("SAV", "*.sav")
+        );
     }
 
     private void setupContextMenu(){
@@ -145,57 +177,51 @@ public class FileBrowserController {
         editNameTableV.setOnAction(_ -> {
             FileEntity fe = tableView.getSelectionModel().getSelectedItem();
             editName(fe);
-            deselectListCell(Section.ALL);
         });
         MenuItem editNameTreeMP = new MenuItem("Edit Name");
         editNameTreeMP.setOnAction(_ -> {
             FileEntity fe = treeViewMP.getSelectionModel().getSelectedItem().getValue();
             editName(fe);
-            deselectListCell(Section.ALL);
         });
         MenuItem editNameTreeDA = new MenuItem("Edit Name");
         editNameTreeDA.setOnAction(_ -> {
             FileEntity fe = treeViewDA.getSelectionModel().getSelectedItem().getValue();
             editName(fe);
-
         });
         MenuItem copy = new MenuItem("Copy");
         copy.setOnAction(_ -> {
             FileEntity fe = tableView.getSelectionModel().getSelectedItem();
             copyFileEntity(fe);
         });
+        MenuItem cut = new MenuItem("Cut");
+        cut.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            cutFileEntity(fe);
+        });
+        MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            removeFileEntity(fe);
+        });
+        // contextMenuFO
+        MenuItem createDiskMI = new MenuItem("Create a new virtual disk");
+        createDiskMI.setOnAction(_ -> createVirtualDisk());
+        MenuItem createFolderMI = new MenuItem("Create a new folder");
+        createFolderMI.setOnAction(_ -> createFolder());
+        MenuItem createPlainTextMI = new MenuItem("Create a new plaintext");
+        createPlainTextMI.setOnAction(_ -> createPlainText());
+        MenuItem createShortCutTableV = new MenuItem("Create a new shortcut");
+        createShortCutTableV.setOnAction(_ -> {
+            FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+            if(fe == null) return;
+            createShortCut();
+        });
 
-
-
-
-        contextMenuTableV.getItems().setAll(editNameTableV, copyPathTableV, copy);
+        contextMenuTableV.getItems().setAll(createShortCutTableV, editNameTableV, copyPathTableV, copy, cut);
+        contextMenuFO.getItems().setAll(createDiskMI, createFolderMI, createPlainTextMI);
+        contextMenuTreeDA.getItems().setAll(editNameTreeDA, copyPathTreeDA);
+        contextMenuTreeMP.getItems().setAll(editNameTreeMP, copyPathTreeMP);
     }
-
-    private void editName(FileEntity fe){
-        if(fe == null) return;
-
-        deselectListCell(Section.ALL);
-    }
-
-    private void copyFileEntity(FileEntity fe){
-        if(fe == null) return;
-        if(fileTransferStack.size() == 1) fileTransferStack.clear();
-        fileTransferStack.push(fe);
-        labelAction.setText("Copy");
-        labelFileName.setText(fe.getName());
-        labelPathFileName.setText(fe.getDirectoryPath().getPath());
-        paneInfo.setVisible(true);
-    }
-
-    private void copyToClipboard(FileEntity fe){
-        if(fe == null) return;
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-        ClipboardContent content = new ClipboardContent();
-        content.putString(fe.getPath().toString());
-        clipboard.setContent(content);
-    }
-
-
 
     private void setupTableView(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -264,13 +290,6 @@ public class FileBrowserController {
             if(isDeselectionByUser) deselectListCell(Section.TREEVIEW);
         });
 
-        tableView.setContextMenu(contextMenuTableV);
-
-        tableView.setOnContextMenuRequested(contextMenuEvent -> {
-            boolean flag = tableView.getSelectionModel().getSelectedItems().isEmpty();
-            if(flag) contextMenuTableV.hide();
-        });
-
         tableView.setOnMouseClicked(event -> {
             if(event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2){
                 if(!handleSelectedCellPressed(tableView, event)){
@@ -288,6 +307,11 @@ public class FileBrowserController {
                 }
 
                 gotToDirectory(item.getPath());
+            }else if (event.getButton() == MouseButton.SECONDARY){
+                if(!handleSelectedCellPressed(tableView, event)){
+                    tableView.setContextMenu(contextMenuFO);
+                    deselectListCell(Section.TABLEVIEW);
+                }else tableView.setContextMenu(contextMenuTableV);
             }
         });
     }
@@ -330,6 +354,8 @@ public class FileBrowserController {
                 }
 
                 gotToDirectory(itemValue.getPath());
+            }else {
+                showContextMenu(event, treeViewMP, rootItemMP, contextMenuTreeMP);
             }
         });
 
@@ -354,12 +380,136 @@ public class FileBrowserController {
                 }
 
                 gotToDirectory(itemValue.getPath());
-            }
+            }else showContextMenu(event, treeViewDA, rootItemDA, contextMenuTreeDA);
         });
 
     }
 
+    private void showContextMenu(MouseEvent event, TreeView<FileEntity> treeView, TreeItem<FileEntity> rootItem, ContextMenu contextMenu) {
+        if (event.getButton() == MouseButton.SECONDARY){
+            TreeItem<FileEntity> ti = treeView.getSelectionModel().getSelectedItem();
+            if(ti == null || ti == rootItem){
+                treeView.setContextMenu(null);
+                return;
+            }
+            if(!handleSelectedCellPressed(treeView, event)){
+                treeView.setContextMenu(null);
+            }else treeView.setContextMenu(contextMenu);
+        }
+    }
+
     //
+
+    @FXML
+    private void openFile(){
+        file = fileChooserOpen.showOpenDialog(null);
+        if (file == null) return;
+        IO.writeRecordRecentFiles(file.getPath());
+        updateRecentFiles();
+    }
+
+
+    @FXML
+    private void saveFile() throws Exception {
+        file = fileChooserSaveFile.showSaveDialog(null);
+        if (file == null) return;
+        ObjectSerializationUtil.serialize(fileAssignmentTable, fileTree, file.getPath());
+    }
+
+    @FXML
+    private void closeFile(){
+
+    }
+
+    /**
+     * Opens a recently accessed file based on the selected menu item.
+     * @param pathRecentFile The path of the recently accessed file.
+     */
+    private void openRecentFile(String pathRecentFile) throws FileNotFoundException {
+        file = new File(pathRecentFile);
+        if (!file.exists()){
+            IO.deleteRecentFilesRecord(pathRecentFile);
+            updateRecentFiles();
+            throw new FileNotFoundException("File not found: "+pathRecentFile);
+        }
+    }
+
+    /**
+     * Updates the list of recent files in the menu.
+     */
+    private void updateRecentFiles(){
+        String[] directorySeparators = new String[]{"/", "\\"};
+        ArrayList<String> recentFiles = IO.readRecordRecentFiles();
+        int index = 0;
+
+        if (menuOpenRecentFile != null) menuOpenRecentFile.getItems().clear();
+
+        for (String pathRecentFile : recentFiles.toArray(new String[0])){
+            for (String ds: directorySeparators){
+                index = pathRecentFile.lastIndexOf(ds);
+                if(index != -1)
+                    break;
+            }
+            String nameFile = pathRecentFile.substring(index+1);
+            MenuItem menuItemRecentFile = new MenuItem(nameFile);
+            menuItemRecentFile.setOnAction(_ -> {
+                try {
+                    openRecentFile(pathRecentFile);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            menuOpenRecentFile.getItems().add(menuItemRecentFile);
+        }
+    }
+
+
+    private void editName(FileEntity fe){
+        if(fe == null) return;
+        runSubWindow(fe.getName(), "Edit name - "+fe.getFileType().toString());
+        String name = entryNameController.getName();
+        if(name.isEmpty() || name.isBlank() || name.equals(fe.getName()))
+            return;
+        fe.setName(name);
+        deselectListCell(Section.ALL);
+    }
+
+    private void removeFileEntity(FileEntity fe){
+        if(fe == null) return;
+
+    }
+
+    private void cutFileEntity(FileEntity fe){
+        if(fe == null) return;
+        if(fileTransferStack.size() == 1) fileTransferStack.clear();
+        fileTransferStack.push(fe);
+        labelAction.setText("Cut");
+        labelFileName.setText(fe.getName());
+        labelPathFileName.setText(fe.getDirectoryPath().getPath());
+        paneInfo.setVisible(true);
+        //falta distinguir
+    }
+
+    private void copyFileEntity(FileEntity fe){
+        if(fe == null) return;
+        if(fileTransferStack.size() == 1) fileTransferStack.clear();
+        fileTransferStack.push(fe);
+        labelAction.setText("Copy");
+        labelFileName.setText(fe.getName());
+        labelPathFileName.setText(fe.getDirectoryPath().getPath());
+        paneInfo.setVisible(true);
+    }
+
+    private void copyToClipboard(FileEntity fe){
+        if(fe == null) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(fe.getPath().toString());
+        clipboard.setContent(content);
+    }
+
+
+
 
     private void gotToDirectory(Path target){
         // Path.of("\\") -> root
@@ -585,21 +735,7 @@ public class FileBrowserController {
     }
 
     private String generateValidPath(String path) {
-        if (path == null || path.isEmpty() || path.isBlank())
-            return "\\";
-
-        if (path.startsWith("\\") || path.startsWith(" "))
-            path = path.substring(1);
-
-        if (path.endsWith("\\") || path.endsWith(" "))
-            path = path.substring(0, path.length() - 1);
-
-        if((!path.startsWith("\\") && !path.startsWith(" "))
-                && (!path.endsWith("\\") && !path.endsWith(" ")))
-            return "\\"+path;
-
-        return generateValidPath(path);
-
+        return Path.generateValidPath(path, true);
     }
 
     private Path generateValidPath(Path path){
@@ -610,7 +746,7 @@ public class FileBrowserController {
     @FXML
     private void navigateToDirectory(){
         String inputPath = textField_inputPath.getText();
-        Path path = new Path(Path.generateValidPath(inputPath, true)); ////////asdasdasdasd
+        Path path = new Path(generateValidPath(inputPath));
         if(Objects.equals(path, BackwardPathStack.peek())) backwardPath();
         else gotToDirectory(path);
     }

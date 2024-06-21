@@ -408,12 +408,20 @@ public class FileBrowserController {
         updateRecentFiles();
     }
 
-
     @FXML
     private void saveFile() throws Exception {
+        GlobalExceptionHandler.alertInformation(
+                "Save file",
+                "Save file",
+                "Do you want to save the file?"
+        );
         file = fileChooserSaveFile.showSaveDialog(null);
         if (file == null) return;
-        ObjectSerializationUtil.serialize(fileAssignmentTable, fileTree, file.getPath());
+        if(ObjectSerializationUtil.serialize(fileAssignmentTable, fileTree, file.getPath()))
+            GlobalExceptionHandler.alertInformation(
+                    "Information",
+                    "Information about the saved file",
+                    "the file was exported successfully");
     }
 
     @FXML
@@ -619,13 +627,12 @@ public class FileBrowserController {
 
     @FXML
     private void createShortCut(){
-        if(pathIsSelected.equals(rootPath)) return;
+        //if(pathIsSelected.equals(rootPath)) return;
         runSubWindow("", "Create ShortCut");
         FileEntity targetFile = tableView.getSelectionModel().getSelectedItem();
         String name = entryNameController.getName();
         if(name.isEmpty() || name.isBlank()) name = targetFile.getName();
         name += " - Direct Access";
-
         DirectAccess directAccess = new DirectAccess(name, pathIsSelected, targetFile);
         TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(directAccess.getShortcutDirectoryPath());
         TreeItem<FileEntity> currentFileTI1 = new TreeItem<>(directAccess);

@@ -2,21 +2,20 @@ package pe.edu.utp.filebrowser.IO;
 
 import javafx.scene.control.TreeItem;
 import pe.edu.utp.filebrowser.DSA.HashMap;
-import pe.edu.utp.filebrowser.DSA.Tree;
+import pe.edu.utp.filebrowser.DSA.FSTree;
 import pe.edu.utp.filebrowser.FileSystem.FileEntity;
 import pe.edu.utp.filebrowser.FileSystem.Path;
 
 import java.io.*;
-import java.util.function.Predicate;
 
 public class ObjectSerializationUtil {
 
-    public static boolean serialize(HashMap<Path, TreeItem<FileEntity>> fat, Tree tree, String pathFile){
+    public static boolean serialize(HashMap<Path, TreeItem<FileEntity>> fat, FSTree FSTree, String pathFile){
         HashMap<Path, FileEntity> newFat = convertPathTreeItemMap(fat);
         try (FileOutputStream fileOut = new FileOutputStream(pathFile)){
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(newFat);
-            out.writeObject(tree);
+            out.writeObject(FSTree);
             out.close();
             fileOut.close();
             return true;

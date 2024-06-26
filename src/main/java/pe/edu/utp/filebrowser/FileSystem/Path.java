@@ -33,6 +33,11 @@ public class Path implements Comparable<Path>, Serializable {
         return new Path(auxPath.split(separatorToUseRgx)[idx]);
     }
 
+    /**
+     * Calculates the depth of a path. The depth is determined by the amount of / excluding the starting and the
+     * last ones.
+     * @return depth of a path.
+     */
     public int getNameCount(){
         String auxPath = path;
         if(path.equals(separatorToUse)) return 0;

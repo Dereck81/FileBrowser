@@ -15,13 +15,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.DSA.HashMap;
 import pe.edu.utp.filebrowser.DSA.DynamicStack;
-import pe.edu.utp.filebrowser.DSA.Tree;
+import pe.edu.utp.filebrowser.DSA.FSTree;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
 import pe.edu.utp.filebrowser.IO.IO;
 import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
-import pe.edu.utp.filebrowser.TreeAndTable.RootItem;
+import pe.edu.utp.filebrowser.FileSystem.RootItem;
 import pe.edu.utp.filebrowser.Utilites.ConfirmationOptions;
 import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
 import pe.edu.utp.filebrowser.Utilites.Section;
@@ -115,7 +115,7 @@ public class FileBrowserController {
 
     // DSA
     // Tree
-    private final Tree fileTree = new Tree();
+    private final FSTree fileFSTree = new FSTree();
 
     // HashMap
     private final HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
@@ -417,7 +417,7 @@ public class FileBrowserController {
         );
         file = fileChooserSaveFile.showSaveDialog(null);
         if (file == null) return;
-        if(ObjectSerializationUtil.serialize(fileAssignmentTable, fileTree, file.getPath()))
+        if(ObjectSerializationUtil.serialize(fileAssignmentTable, fileFSTree, file.getPath()))
             GlobalExceptionHandler.alertInformation(
                     "Information",
                     "Information about the saved file",
@@ -475,10 +475,11 @@ public class FileBrowserController {
     private void editName(FileEntity fe){
         if(fe == null) return;
         runSubWindow(fe.getName(), "Edit name - "+fe.getFileType().toString());
-        String name = entryNameController.getName();
-        if(name.isEmpty() || name.isBlank() || name.equals(fe.getName()))
+        String newName = entryNameController.getName();
+        if(newName.isEmpty() || newName.isBlank() || newName.equals(fe.getName()))
             return;
-        fe.setName(name);
+
+        fileFSTree.updateFilename(fe, newName);
         deselectListCell(Section.ALL);
     }
 
@@ -549,7 +550,7 @@ public class FileBrowserController {
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
 
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     private void createSubWindows(){
@@ -584,12 +585,12 @@ public class FileBrowserController {
     }
 
     private boolean createFile(FileEntity fe, TreeItem<FileEntity> treeItemParent){
-        if(!fileTree.push(fe)) return false;
+        if(!fileFSTree.push(fe)) return false;
         TreeItem<FileEntity> currentFileTI = new TreeItem<>(fe);
         treeItemParent.getChildren().add(currentFileTI);
         fileAssignmentTable.put(fe.getPath(), currentFileTI);
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getChildFilesEntities(fe));
+        tableView.getItems().addAll(fileFSTree.getChildFilesEntities(fe));
         return true;
     }
 
@@ -650,7 +651,7 @@ public class FileBrowserController {
         textField_inputPath.clear();
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     @FXML
@@ -663,7 +664,7 @@ public class FileBrowserController {
         textField_inputPath.clear();
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileTree.getFilesEntitiesInDirectory(pathIsSelected));
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
     @FXML

@@ -1,12 +1,9 @@
-package pe.edu.utp.filebrowser.TreeAndTable;
+package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import pe.edu.utp.filebrowser.FileBrowser;
-import pe.edu.utp.filebrowser.FileSystem.FileEntity;
-import pe.edu.utp.filebrowser.FileSystem.FileTypes;
-import pe.edu.utp.filebrowser.FileSystem.Path;
 
 import java.io.File;
 import java.io.Serializable;
@@ -21,7 +18,6 @@ public class RootItem extends FileEntity implements Serializable {
         this.name = name;
         this.fileType = fileType;
     }
-
 
     public Pane getPane(){
         String path = null;

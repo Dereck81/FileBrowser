@@ -142,6 +142,11 @@ public class DynamicArray<T> implements Iterable<T>, Serializable {
 		size--;
 	}
 
+	/**
+	 * Finds a given element in the array
+	 * @param x
+	 * @return the index of the target element, -1 if not found.
+	 */
 	public int find(T x) {
 		for (int i = 0; i < size; i++) {
 			if (x.equals(arr[i]))

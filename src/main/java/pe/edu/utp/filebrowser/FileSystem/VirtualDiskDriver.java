@@ -3,7 +3,9 @@ package pe.edu.utp.filebrowser.FileSystem;
 import javafx.scene.layout.Pane;
 
 import java.io.Serializable;
-import pe.edu.utp.filebrowser.FileSystem.Path;
+
+import pe.edu.utp.filebrowser.Enums.FileTypes;
+
 import java.time.LocalDateTime;
 
 public class VirtualDiskDriver extends FileEntity implements Serializable {

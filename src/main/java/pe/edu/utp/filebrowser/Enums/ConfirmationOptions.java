@@ -1,4 +1,4 @@
-package pe.edu.utp.filebrowser.Utilites;
+package pe.edu.utp.filebrowser.Enums;
 
 /**
  *

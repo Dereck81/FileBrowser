@@ -6,8 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.Controllers.FileBrowserController;
-import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
-import pe.edu.utp.filebrowser.Utilites.Section;
+import pe.edu.utp.filebrowser.Enums.Section;
 
 import java.io.IOException;
 import java.util.Objects;

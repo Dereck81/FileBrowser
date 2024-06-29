@@ -1,4 +1,4 @@
-package pe.edu.utp.filebrowser.Utilites;
+package pe.edu.utp.filebrowser.Enums;
 
 /**
  * Enums used to reset specific sections of forms in kanban task

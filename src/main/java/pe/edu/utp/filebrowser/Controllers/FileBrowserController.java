@@ -22,9 +22,10 @@ import pe.edu.utp.filebrowser.IO.IO;
 import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
-import pe.edu.utp.filebrowser.Utilites.ConfirmationOptions;
-import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
-import pe.edu.utp.filebrowser.Utilites.Section;
+import pe.edu.utp.filebrowser.Enums.ConfirmationOptions;
+import pe.edu.utp.filebrowser.Utilites.JavaFXGlobalExceptionHandler;
+import pe.edu.utp.filebrowser.Enums.Section;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
 
 import static pe.edu.utp.filebrowser.TreeAndTable.CellUtilityManager.handleSelectedCellPressed;
 
@@ -32,6 +33,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import pe.edu.utp.filebrowser.FileSystem.Path;
+import pe.edu.utp.filebrowser.Utilites.JavaFXNotifications;
+
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -410,7 +413,7 @@ public class FileBrowserController {
 
     @FXML
     private void saveFile() throws Exception {
-        GlobalExceptionHandler.alertInformation(
+        JavaFXGlobalExceptionHandler.alertInformation(
                 "Save file",
                 "Save file",
                 "Do you want to save the file?"
@@ -418,7 +421,7 @@ public class FileBrowserController {
         file = fileChooserSaveFile.showSaveDialog(null);
         if (file == null) return;
         if(ObjectSerializationUtil.serialize(fileAssignmentTable, fileFSTree, file.getPath()))
-            GlobalExceptionHandler.alertInformation(
+            JavaFXGlobalExceptionHandler.alertInformation(
                     "Information",
                     "Information about the saved file",
                     "the file was exported successfully");
@@ -496,6 +499,7 @@ public class FileBrowserController {
         labelFileName.setText(fe.getName());
         labelPathFileName.setText(fe.getDirectoryPath().getPath());
         paneInfo.setVisible(true);
+        JavaFXNotifications.notificationInformation(null, "File ready to move.");
         //falta distinguir
     }
 
@@ -507,6 +511,7 @@ public class FileBrowserController {
         labelFileName.setText(fe.getName());
         labelPathFileName.setText(fe.getDirectoryPath().getPath());
         paneInfo.setVisible(true);
+        JavaFXNotifications.notificationInformation(null, "File ready to paste.");
     }
 
     private void copyToClipboard(FileEntity fe){
@@ -515,6 +520,7 @@ public class FileBrowserController {
         ClipboardContent content = new ClipboardContent();
         content.putString(fe.getPath().toString());
         clipboard.setContent(content);
+        JavaFXNotifications.notificationInformation(null, "The path was copied to the clipboard.");
     }
 
 
@@ -568,7 +574,7 @@ public class FileBrowserController {
             stageEntryName.initOwner(primaryStage);
 
         } catch (IOException e){
-            GlobalExceptionHandler.alertWarning(
+            JavaFXGlobalExceptionHandler.alertWarning(
                     "Error",
                     "An error ocurred",
                     "Error loading sub windows"
@@ -669,7 +675,7 @@ public class FileBrowserController {
 
     @FXML
     private void convertToPhysicalDirectory(){
-       ConfirmationOptions co = GlobalExceptionHandler.alertConfirmation(
+       ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
                "Create file directory on hard drive",
                "Do you wish to continue?", "This action can not be undone.");
        if(co != ConfirmationOptions.YES) return;
@@ -706,7 +712,7 @@ public class FileBrowserController {
         if((selectedFilePT.getContent().equals(textAreaEditorText.getText())))
            return;
         selectedFilePT.setContent(textAreaEditorText.getText());
-        GlobalExceptionHandler.alertInformation(
+        JavaFXGlobalExceptionHandler.alertInformation(
                 "Save",
                 "Save content!",
                 "The content of the file was saved!");
@@ -715,7 +721,7 @@ public class FileBrowserController {
     @FXML
     private void closeTextEditor(){
         if(!(selectedFilePT.getContent().equals(textAreaEditorText.getText()))) {
-            ConfirmationOptions co = GlobalExceptionHandler.alertConfirmation(
+            ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
                     "Close",
                     "Unsaved content",
                     "Do you wish to save changes?"

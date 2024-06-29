@@ -1,13 +1,15 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
+import pe.edu.utp.filebrowser.OS.OSUtils;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
 public class Path implements Comparable<Path>, Serializable {
     private String path;
     private String root;
-    public static String separatorToUseRgx = "\\\\";
-    public static String separatorToUse = "\\";
+    public static String separatorToUseRgx = (OSUtils.isWindows()) ? "\\\\" : "/";
+    public static String separatorToUse = (OSUtils.isWindows()) ? "\\" : "/";
 
     public Path(String path) throws IllegalArgumentException{
         setPath(path);
@@ -52,7 +54,7 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     public Path getParent(){
-        int idx = path.lastIndexOf("\\");
+        int idx = path.lastIndexOf(separatorToUse);
         if(idx == 0) return new Path(root);
         if(idx == -1) return null;
         return new Path(path.substring(0, idx));

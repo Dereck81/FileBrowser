@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
+import pe.edu.utp.filebrowser.Utilites.JavaFXGlobalExceptionHandler;
 
 public class EntryNameController {
 
@@ -25,7 +25,7 @@ public class EntryNameController {
     private void buttonAction(){
         nameInput = textFieldName.getText();
         if(nameInputIsValid() && !nameInput.isBlank()){
-            GlobalExceptionHandler.alertWarning(
+            JavaFXGlobalExceptionHandler.alertWarning(
                     "Name entry",
                     "Invalid name",
                     "The name you entered is not valid, please try again."

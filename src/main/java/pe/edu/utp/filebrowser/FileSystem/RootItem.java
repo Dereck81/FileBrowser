@@ -3,6 +3,7 @@ package pe.edu.utp.filebrowser.FileSystem;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileBrowser;
 
 import java.io.File;

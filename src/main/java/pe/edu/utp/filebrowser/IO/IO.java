@@ -1,7 +1,7 @@
 package pe.edu.utp.filebrowser.IO;
 
 import pe.edu.utp.filebrowser.FileBrowser;
-import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
+import pe.edu.utp.filebrowser.Utilites.WindowsGlobalExceptionHandler;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -74,9 +74,8 @@ public class IO {
             fileW.write(content);
         }
         if(!showAlert) return;
-        GlobalExceptionHandler.alertInformation(
+        WindowsGlobalExceptionHandler.alertInformation(
                 "Information",
-                "Information about the saved file",
                 "the file was exported successfully");
     }
 

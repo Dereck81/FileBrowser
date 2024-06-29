@@ -1,7 +1,9 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
 import java.io.Serializable;
-import pe.edu.utp.filebrowser.FileSystem.Path;
+
+import pe.edu.utp.filebrowser.Enums.FileTypes;
+
 import java.time.LocalDateTime;
 
 import javafx.scene.layout.Pane;

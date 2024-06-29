@@ -1,7 +1,7 @@
 package pe.edu.utp.filebrowser.DSA;
 
 import pe.edu.utp.filebrowser.FileSystem.FileEntity;
-import pe.edu.utp.filebrowser.FileSystem.FileTypes;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
 
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package pe.edu.utp.filebrowser.FileSystem;
+package pe.edu.utp.filebrowser.Enums;
 
 public enum FileTypes {
     FOLDER,

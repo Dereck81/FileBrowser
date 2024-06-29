@@ -535,11 +535,16 @@ public class FileBrowserController {
         if(!target.equals(rootPath) && !fileAssignmentTable.contains(target)){
             textField_inputPath.clear();
             textField_inputPath.setText(generateValidPath(pathIsSelected.toString())); // check
-            // alert
+            JavaFXGlobalExceptionHandler.alertError(
+                    "Error",
+                    "Error entering directory",
+                    "Could not enter directory, check path."
+            );
             return;
         }
 
-        if(fileAssignmentTable.get(target).getValue() instanceof PlainText){
+        if(!target.getPath().equals(Path.separatorToUse)
+                && fileAssignmentTable.get(target).getValue() instanceof PlainText){
             openTextEditor(fileAssignmentTable.get(target).getValue());
             return;
         }
@@ -596,7 +601,7 @@ public class FileBrowserController {
         treeItemParent.getChildren().add(currentFileTI);
         fileAssignmentTable.put(fe.getPath(), currentFileTI);
         tableView.getItems().clear();
-        tableView.getItems().addAll(fileFSTree.getChildFilesEntities(fe));
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(fe.getDirectoryPath()));
         return true;
     }
 

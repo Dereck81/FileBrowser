@@ -76,6 +76,7 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     public Path resolve(String path) throws IllegalArgumentException{
+        if(path == null) return this;
         if(!isValid(path)) throw new IllegalArgumentException("Invalid path!");
         String newPath =
                 this.path.replaceAll("[\\\\/]+$", "")

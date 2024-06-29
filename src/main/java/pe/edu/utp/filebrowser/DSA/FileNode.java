@@ -38,18 +38,18 @@ public class FileNode implements Serializable {
         return false;
     }
 
-    public boolean pushChildren(FileEntity child) {
+    public FileNode pushChildren(FileEntity child) {
 
         if (this.data.getFileType() == FileTypes.PLAINTEXT)
-            return false;
+            return null;
 
         if (contains(child))
-            return false;
+            return null;
 
         FileNode nd = new FileNode(child);
         this.children.pushBack(nd);
 
-        return true;
+        return nd;
     }
 
     /**

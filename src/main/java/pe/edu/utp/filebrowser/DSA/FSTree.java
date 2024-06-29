@@ -20,32 +20,37 @@ public class FSTree implements Serializable {
                 new RootItem(null, null)
         );
         lookupTable = new HashMap<>();
+        lookupTable.put(root.getFile().getPath().toString(), root);
     }
 
     public boolean push(FileEntity file) {
-        FileNode node = getNode(file.getDirectoryPath());
-        if (node == null)
+        //FileNode parentNode = getNode(file.getDirectoryPath());
+        FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
+        if (parentNode == null)
             return false;
 
-        if (!node.pushChildren(file))
+        FileNode child = parentNode.pushChildren(file);
+
+        if (child == null)
             return false;
 
-        lookupTable.put(file.getName(), node);
+        lookupTable.put(file.getPath().toString(), child);
         return true;
     }
 
     public void remove(FileEntity file){
-        FileNode parentNode = getNode(file.getDirectoryPath());
-
+        //FileNode parentNode = getNode(file.getDirectoryPath());
+        FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
         if(parentNode == null)
             return;
 
-        FileNode childNode = lookupTable.get(file.getName());
+        FileNode childNode = lookupTable.get(file.getPath().toString());
         if(childNode == null) return;
         parentNode.deleteSubtree(childNode);
     }
 
     private FileNode searchNode(FileNode branch, String name) {
+        // This function needs to be analyzed and fixed
         FileNode node = lookupTable.get(name);
         if(node == null) return null;
         if (node.getFile().getFileType() != FileTypes.PLAINTEXT)
@@ -67,7 +72,7 @@ public class FSTree implements Serializable {
             return null;
 
         if(directoryPath.getNameCount() == 1)
-            return searchNode(branch, directoryPath.getName(0).toString());
+            return searchNode(branch, directoryPath.getName(0).toString()); //CHECK!!
         else if(directoryPath.getNameCount() == 2)
             dp = directoryPath.getName(1);
         else
@@ -78,7 +83,9 @@ public class FSTree implements Serializable {
     }
 
     public FileEntity[] getChildFilesEntities(FileEntity file){
-        FileNode parentNode = getNode(file.getDirectoryPath());
+        //FileNode parentNode = getNode(file.getDirectoryPath());
+        FileNode parentNode = lookupTable.get(file.getPath().toString());
+        // if(parentNode instanceof PlainText) return;
         if(parentNode == null) return null;
         int i = 0;
         FileEntity[] fileEntities = new FileEntity[parentNode.subtreeSize()];
@@ -87,7 +94,9 @@ public class FSTree implements Serializable {
     }
 
     public FileEntity[] getFilesEntitiesInDirectory(Path directoryPath){
-        FileNode parentNode = getNode(directoryPath);
+        //FileNode parentNode = getNode(directoryPath);
+        FileNode parentNode = lookupTable.get(directoryPath.getPath());
+        // if(parentNode instanceof PlainText) return;
         if(parentNode == null) return null;
         int i = 0;
         FileEntity[] fileEntities = new FileEntity[parentNode.subtreeSize()];
@@ -97,18 +106,19 @@ public class FSTree implements Serializable {
     }
 
     public FileEntity getFileEntityByPath(Path path){
-        FileNode node = getNode(path);
+        //FileNode node = getNode(path);
+        FileNode node = lookupTable.get(path.getPath());
         if(node == null) return null;
         return node.getFile();
     }
 
     public void updateFilename(FileEntity fe, String newName) {
-        FileNode nd = getNode(fe.getPath());
-        String oldName = fe.getName();
-        FileNode p = lookupTable.get(oldName);
-        nd.getFile().setName(newName);
-        lookupTable.remove(oldName);
-        lookupTable.put(newName, p);
+        FileNode nd = lookupTable.get(fe.getPath().toString());
+        String oldNamePath = fe.getPath().toString();
+        FileEntity fe_ = nd.getFile();
+        fe_.setName(newName);
+        lookupTable.remove(oldNamePath);
+        lookupTable.put(fe_.getPath().toString(), nd);
     }
 
 }

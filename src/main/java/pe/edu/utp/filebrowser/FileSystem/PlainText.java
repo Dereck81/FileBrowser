@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class PlainText extends FileEntity implements Serializable {
 
-    private StringBuilder content = new StringBuilder();
+    private String content = "";
 
     //public PlainText(String fileName, Path filePath) {
     //    super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
@@ -22,7 +22,7 @@ public class PlainText extends FileEntity implements Serializable {
 
 
     public int getSize(){
-        return content.toString().getBytes().length;
+        return content.getBytes().length;
     }
 
     private void setModificationDate() {
@@ -30,12 +30,12 @@ public class PlainText extends FileEntity implements Serializable {
     }
 
     public void setContent(String content){
-        this.content.append(content);
+        this.content = content;
         setModificationDate();
     }
 
     public String getContent(){
-        return content.toString();
+        return content;
     }
 
 

@@ -797,7 +797,11 @@ public class FileBrowserController {
         // Path.of("\\") -> root
         if (target == null) return;
 
-        if (Objects.equals(target, pathIsSelected)) return;
+        if (Objects.equals(target, pathIsSelected)){
+            tableView.getItems().clear();
+            tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+            return;
+        }
 
         if (!target.equals(rootPath) && !fileAssignmentTable.contains(target)) {
             textField_inputPath.clear();
@@ -988,7 +992,7 @@ public class FileBrowserController {
     }
 
     private TreeItem<FileEntity> rebuildFSTree(FileNode root) {
-        if (root.getFile().getFileType() == FileTypes.DIRECTACCESS)
+        if (root.getFile() instanceof DirectAccess)
             rootItemDA.getChildren().add(new TreeItem<>(root.getFile()));
 
         TreeItem<FileEntity> thisTreeItem = new TreeItem<>(root.getFile());
@@ -1013,6 +1017,8 @@ public class FileBrowserController {
             rootItemMP = rebuildFSTree(fileFSTree.getRoot());
             treeViewMP.setRoot(rootItemMP);
             treeViewMP.refresh();
+            treeViewDA.refresh();
+            goToDirectory(rootItemMP.getValue().getPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {

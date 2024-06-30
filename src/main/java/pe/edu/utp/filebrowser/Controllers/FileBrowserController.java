@@ -1009,6 +1009,7 @@ public class FileBrowserController {
             fileFSTree = (FSTree) objectReader.readObject();
 
             // rebuild TreeView and fileAssignmentTable
+            rootItemDA.getChildren().clear();
             rootItemMP = rebuildFSTree(fileFSTree.getRoot());
             treeViewMP.setRoot(rootItemMP);
             treeViewMP.refresh();

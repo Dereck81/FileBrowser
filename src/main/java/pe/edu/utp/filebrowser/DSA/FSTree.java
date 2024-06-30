@@ -6,7 +6,6 @@ import pe.edu.utp.filebrowser.FileSystem.RootItem;
 
 import java.io.Serializable;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -22,7 +21,7 @@ public class FSTree implements Serializable {
 
     public FSTree() {
         root = new FileNode(
-                new RootItem(null, null)
+                new RootItem("My PC", FileTypes.PC)
         );
         lookupTable = new HashMap<>();
         lookupTable.put(root.getFile().getPath().toString(), root);

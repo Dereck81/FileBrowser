@@ -154,4 +154,13 @@ public class DynamicArray<T> implements Iterable<T>, Serializable {
 		}
 		return -1;
 	}
+
+	@SuppressWarnings("unchecked")
+	public T[] toArray(){
+		T[] newArr = (T[]) new Object[size];
+		System.arraycopy(arr, 0, newArr, 0, size);
+		return newArr;
+	}
+
+
 }

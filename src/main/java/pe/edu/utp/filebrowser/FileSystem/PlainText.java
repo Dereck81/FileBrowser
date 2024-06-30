@@ -12,8 +12,12 @@ public class PlainText extends FileEntity implements Serializable {
 
     private StringBuilder content = new StringBuilder();
 
-    public PlainText(String fileName, Path filePath) {
-        super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
+    //public PlainText(String fileName, Path filePath) {
+    //    super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
+    //}
+
+    public PlainText(String fileName, FileEntity fileEntityParent) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, LocalDateTime.now());
     }
 
     public String getName() {
@@ -30,10 +34,6 @@ public class PlainText extends FileEntity implements Serializable {
 
     public Path getPath(){
         return super.getPath();
-    }
-
-    public void setDirectoryPath(Path directoryPath){
-        super.setDirectoryPath(directoryPath);
     }
 
     public int getSize(){

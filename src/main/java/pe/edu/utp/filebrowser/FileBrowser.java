@@ -14,7 +14,7 @@ import java.util.Objects;
 public class FileBrowser extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        //Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
+        //Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
         FXMLLoader fxmlLoader = new FXMLLoader(FileBrowser.class.getResource("FileBrowser.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1077, 620);
         FileBrowserController controller = fxmlLoader.getController();
@@ -24,6 +24,7 @@ public class FileBrowser extends Application {
             if(keyEvent.getCode().getName().equalsIgnoreCase("ESC")) {
                 controller.deselectListCell(Section.ALL);
             }
+            //System.out.println(keyEvent.getCode().getName());
         });
         stage.setOnCloseRequest(_ -> controller.quit());
         stage.setTitle("File Browser");

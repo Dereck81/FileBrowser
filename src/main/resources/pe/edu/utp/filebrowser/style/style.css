@@ -57,6 +57,10 @@
     -fx-background-color: #FFA500;
 }
 
+.button:selected {
+    -fx-background-color: #DE9C22;
+}
+
 .button:pressed {
     -fx-background-color: #BE7F0C;
 }

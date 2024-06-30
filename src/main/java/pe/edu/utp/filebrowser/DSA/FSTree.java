@@ -5,6 +5,9 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
 
 import java.io.Serializable;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
 import pe.edu.utp.filebrowser.FileSystem.Path;
 
 /**
@@ -47,6 +50,7 @@ public class FSTree implements Serializable {
         FileNode childNode = lookupTable.get(file.getPath().toString());
         if(childNode == null) return;
         parentNode.deleteSubtree(childNode);
+        removeLookupTable(childNode.getFile().getPath().toString());
     }
 
     private FileNode searchNode(FileNode branch, String name) {
@@ -117,8 +121,28 @@ public class FSTree implements Serializable {
         String oldNamePath = fe.getPath().toString();
         FileEntity fe_ = nd.getFile();
         fe_.setName(newName);
-        lookupTable.remove(oldNamePath);
-        lookupTable.put(fe_.getPath().toString(), nd);
+        updateLookupTable(oldNamePath);
+        //lookupTable.remove(oldNamePath);
+        //lookupTable.put(fe_.getPath().toString(), nd);
+    }
+
+    private void updateLookupTable(){
+
+    }
+
+    private void updateLookupTable(String pathOld){
+        String escapedPathOld = Pattern.quote(pathOld);
+        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
+        Predicate<String> condition = key -> key.matches(regex);
+        KeyUpdater<String, FileNode> updater = (_, value) -> value.getFile().getPath().toString();
+        lookupTable.update(condition, updater);
+    }
+
+    private void removeLookupTable(String pathOld){
+        String escapedPathOld = Pattern.quote(pathOld);
+        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
+        Predicate<String> condition = key -> key.matches(regex);
+        lookupTable.remove(condition);
     }
 
 }

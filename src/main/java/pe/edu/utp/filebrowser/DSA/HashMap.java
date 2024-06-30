@@ -3,16 +3,16 @@ package pe.edu.utp.filebrowser.DSA;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class HashMap<K, V> implements Serializable {
     private final Integer DEFAULT_CAPACITY = 40;
-    @SuppressWarnings("unchecked")
-    private final Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
     private final DynamicArray<K> generalKeys = new DynamicArray<>();
     private int size = 0;
 
-    private static class KeyValuePair<K2, V2> implements Serializable{
+    @SuppressWarnings("unchecked")
+    private final Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
+
+    private class KeyValuePair<K2, V2> implements Serializable{
         private final K2 key;
         private V2 value;
 
@@ -89,6 +89,7 @@ public class HashMap<K, V> implements Serializable {
 
     }
 
+
     public HashMap(K key, V value) {
         buckets[indexGenerator(key)] = new Bucket<>(key, value);
     }
@@ -120,13 +121,13 @@ public class HashMap<K, V> implements Serializable {
 
     @SuppressWarnings("unchecked")
     public K[] getKeys(Predicate<K> condition){
-        Object[] keys = new Object[generalKeys.size()];
+        DynamicArray<K> arr = new DynamicArray<>();
         for (int i = 0; i < generalKeys.size(); i++) {
             K key = generalKeys.at(i);
             if (condition.test(key))
-                keys[i] = generalKeys.at(i);
+                arr.pushBack(key);
         }
-        return (K[]) keys;
+        return arr.toArray();
     }
 
     public void remove(K key){
@@ -166,18 +167,39 @@ public class HashMap<K, V> implements Serializable {
         //int hash = 5381;
         BigInteger hash = BigInteger.valueOf(5381);
         String key_ = key.toString();
-        for (int i = 0; i < key_.length(); i++) {
-            hash =  BigInteger.valueOf((long) hash.intValue() << 5 )
+        for (int i = 0; i < key_.length(); i++)
+            hash =  BigInteger
+                    .valueOf((long) hash.intValue() << 5 )
                     .add(hash)
                     .add(BigInteger.valueOf(key_.charAt(i)));
             //hash = ((hash << 5) + hash) + key_.charAt(i);
-        }
-
         return hash;
     }
 
     private int compressFunction(BigInteger codeHash){
         return codeHash.mod(BigInteger.valueOf((long) DEFAULT_CAPACITY)).intValue();
+    }
+
+    private void update(K key, V newValue){
+        remove(key);
+        put(key, newValue);
+    }
+
+    public void update(Predicate<K> condition, KeyUpdater<K, V> keyUpdate){
+        K[] keys = getKeys(condition);
+        for (int i = 0; i < keys.length; i++) {
+            K oldKey = keys[i];
+            V value = get(oldKey);
+            K newKey = keyUpdate.update(oldKey, value);
+            remove(oldKey);
+            put(newKey, value);
+        }
+    }
+
+    public void remove(Predicate<K> condition){
+        K[] keys = getKeys(condition);
+        for (int i = 0; i < keys.length; i++)
+            remove(keys[i]);
     }
 
 }

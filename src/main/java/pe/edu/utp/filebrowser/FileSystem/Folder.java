@@ -11,8 +11,12 @@ import java.time.LocalDateTime;
 public class Folder extends FileEntity implements Serializable {
     //private DynamicArray<FileEntity> fileContainer;
 
-    public Folder(String folderName, Path directoryPath) {
-        super(folderName, FileTypes.FOLDER, directoryPath, LocalDateTime.now());
+    //public Folder(String folderName, Path directoryPath) {
+    //    super(folderName, FileTypes.FOLDER, directoryPath, LocalDateTime.now());
+    //}
+
+    public Folder(String folderName, FileEntity fileEntityParent) {
+        super(folderName, FileTypes.FOLDER, fileEntityParent, LocalDateTime.now());
     }
 
     public String getName() {
@@ -25,10 +29,6 @@ public class Folder extends FileEntity implements Serializable {
 
     public Path getPath(){
         return super.getPath();
-    }
-
-    public void setDirectoryPath(Path directoryPath){
-        super.setDirectoryPath(directoryPath);
     }
 
     public Path getDirectoryPath(){

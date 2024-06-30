@@ -13,6 +13,7 @@ import java.util.Objects;
 
 public class FileEntity implements Comparable<FileEntity>, Serializable {
 
+    private FileEntity fileEntityParent;
     private FileTypes fileTypes;
     private Path directoryPath;
     private LocalDateTime modificationDate;
@@ -26,6 +27,16 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         this.creationDate = modificationDate;
         this.name = name;
         this.directoryPath = directoryPath;
+        this.fileEntityParent = null;
+    }
+
+    public FileEntity(String name, FileTypes type, FileEntity feParent, LocalDateTime modificationDate) {
+        this.fileTypes = type;
+        this.modificationDate = modificationDate;
+        this.creationDate = modificationDate;
+        this.name = name;
+        this.fileEntityParent = feParent;
+        this.directoryPath = null;
     }
 
     public void setName(String name) {
@@ -46,16 +57,20 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
 
     public Path getPath() {
         //example: "Disk D/folder1/filename"
+        if(this.fileEntityParent != null)
+            return this.fileEntityParent.getPath().resolve(this.name);
         return directoryPath.resolve(name);
     }
 
     public Path getDirectoryPath(){
         //example: "Disk D/folder1"
+        if(this.fileEntityParent != null)
+            return this.fileEntityParent.getPath();
         return directoryPath;
     }
 
-    public void setDirectoryPath(Path directoryPath){
-        this.directoryPath = directoryPath;
+    public void setFileEntityParent(FileEntity fileEntityParent){
+        this.fileEntityParent = fileEntityParent;
     }
 
     public LocalDateTime getModificationDate() {

@@ -20,6 +20,12 @@ public class DirectAccess extends FileEntity implements Serializable {
 
     }
 
+    public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile) {
+        super(shortcutName, targetFile.getFileType(), fileEntityParent, LocalDateTime.now());
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
+    }
+
     public String getName() {
         return super.getName();
     }
@@ -32,8 +38,8 @@ public class DirectAccess extends FileEntity implements Serializable {
         return getShortCutPathTarget(); // ???
     }
 
-    public void setShortcutDirectoryPath(Path shortcutPath) {
-        super.setDirectoryPath(shortcutPath);
+    public void setShortcutFileParent(FileEntity fileEntityParent) {
+        super.setFileEntityParent(fileEntityParent);
     }
 
     public Path getShortcutDirectoryPath(){

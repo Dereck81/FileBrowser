@@ -1,12 +1,9 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
 import java.io.Serializable;
-
 import pe.edu.utp.filebrowser.Enums.FileTypes;
-
 import java.time.LocalDateTime;
 
-import javafx.scene.layout.Pane;
 
 public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity targetFile;
@@ -24,14 +21,6 @@ public class DirectAccess extends FileEntity implements Serializable {
         super(shortcutName, targetFile.getFileType(), fileEntityParent, LocalDateTime.now());
         this.targetFile = targetFile;
         super.setFileType(getFileTypeTarget());
-    }
-
-    public String getName() {
-        return super.getName();
-    }
-
-    public void setName(String name) {
-        super.setName(name);
     }
 
     public Path getShortcutPath() {
@@ -72,10 +61,6 @@ public class DirectAccess extends FileEntity implements Serializable {
         setModificationDate();
     }
 
-    public LocalDateTime getModificationDate(){
-        return super.getModificationDate();
-    }
-
     /**
      * It is based on the Windows file manager,
      * which only modifies the date when a file is added
@@ -102,11 +87,6 @@ public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity getFinalTargetFile(FileEntity feTarget){
         if(!(feTarget instanceof DirectAccess)) return feTarget;
         return getFinalTargetFile((((DirectAccess) feTarget).getTargetFile()));
-    }
-
-
-    public Pane getPane(){
-        return super.getPane();
     }
 
 }

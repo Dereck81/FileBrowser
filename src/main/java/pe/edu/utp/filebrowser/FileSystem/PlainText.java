@@ -20,32 +20,9 @@ public class PlainText extends FileEntity implements Serializable {
         super(fileName, FileTypes.PLAINTEXT, fileEntityParent, LocalDateTime.now());
     }
 
-    public String getName() {
-        return super.getName();
-    }
-
-    public void setName(String name) {
-        super.setName(name);
-    }
-
-    public Path getDirectoryPath(){
-        return super.getDirectoryPath();
-    }
-
-    public Path getPath(){
-        return super.getPath();
-    }
 
     public int getSize(){
         return content.toString().getBytes().length;
-    }
-
-    public FileTypes getFileType() {
-        return super.getFileType();
-    }
-
-    public LocalDateTime getModificationDate() {
-        return super.getModificationDate();
     }
 
     private void setModificationDate() {
@@ -61,8 +38,5 @@ public class PlainText extends FileEntity implements Serializable {
         return content.toString();
     }
 
-    public Pane getPane(){
-        return super.getPane();
-    }
 
 }

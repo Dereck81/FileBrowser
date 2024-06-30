@@ -17,15 +17,15 @@ public class CellFactory {
                 else
                     // Set a custom graphic based on the type of the element
                     if (item instanceof RootItem)
-                        setGraphic(((RootItem) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof PlainText)
-                        setGraphic(((PlainText) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof Folder)
-                        setGraphic(((Folder) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof VirtualDiskDriver)
-                        setGraphic(((VirtualDiskDriver) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof DirectAccess)
-                        setGraphic(((DirectAccess) item).getPane());
+                        setGraphic(item.getPane());
                 }
         };
     }

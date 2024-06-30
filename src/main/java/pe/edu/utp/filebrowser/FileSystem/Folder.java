@@ -19,42 +19,8 @@ public class Folder extends FileEntity implements Serializable {
         super(folderName, FileTypes.FOLDER, fileEntityParent, LocalDateTime.now());
     }
 
-    public String getName() {
-        return super.getName();
-    }
-
-    public void setName(String name) {
-        super.setName(name);
-    }
-
-    public Path getPath(){
-        return super.getPath();
-    }
-
-    public Path getDirectoryPath(){
-        return super.getDirectoryPath();
-    }
-
-    /*
-    public DynamicArray<FileEntity> getFileContainer() {
-        return fileContainer;
-    }
-
-     */
-
-    public LocalDateTime getModificationDate() {
-        return super.getModificationDate();
-    }
-
     public void setModificationDate(){
         super.setModificationDate(LocalDateTime.now());
     }
 
-    public FileTypes getFileType() {
-        return super.getFileType();
-    }
-
-    public Pane getPane() {
-        return super.getPane();
-    }
 }

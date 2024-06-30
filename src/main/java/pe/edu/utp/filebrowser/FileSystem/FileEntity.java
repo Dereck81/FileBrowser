@@ -113,7 +113,7 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         return new ImageView(file.toURI().toString());
     }
 
-    Pane getPane(){
+    public Pane getPane(){
         Pane pane = new Pane();
         ImageView imageView = getImageView();
         Label name = new Label(this.name);

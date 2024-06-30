@@ -1,6 +1,7 @@
 package pe.edu.utp.filebrowser.Controllers;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -41,7 +42,7 @@ public class FileBrowserController {
 
     // FXML tags
     // TreeItem
-    private final TreeItem<FileEntity> rootItemMP = new TreeItem<>(new RootItem("My PC", FileTypes.PC));
+    private TreeItem<FileEntity> rootItemMP = new TreeItem<>(new RootItem("My PC", FileTypes.PC));
     private final TreeItem<FileEntity> rootItemDA = new TreeItem<>(new RootItem("My Direct Access", FileTypes.DIRECTACCESS));
 
     // MenuBar
@@ -475,6 +476,9 @@ public class FileBrowserController {
         file = fileChooserOpen.showOpenDialog(primaryStage);
         if (file == null) return;
         IO.writeRecordRecentFiles(file.getPath());
+
+        deserializeEverything(file);
+
         updateRecentFiles();
     }
 
@@ -486,13 +490,10 @@ public class FileBrowserController {
                 "Do you want to save the file?"
         );
         if (co != ConfirmationOptions.YES) return;
-        file = fileChooserSaveFile.showSaveDialog(primaryStage);
-        if (file == null) return;
-        if (ObjectSerializationUtil.serialize(fileAssignmentTable, fileFSTree, file.getPath()))
-            JavaFXGlobalExceptionHandler.alertInformation(
-                    "Information",
-                    "Information about the saved file",
-                    "the file was exported successfully");
+        file = fileChooserSaveFile.showSaveDialog(null);
+        if (file == null)
+            return;
+        serializeEverything(file);
     }
 
     @FXML
@@ -876,9 +877,7 @@ public class FileBrowserController {
                "Create file directory on hard drive",
                "Do you wish to continue?", "This action can not be undone.");
        if(co != ConfirmationOptions.YES) return;
-       File selectedDirectory = directoryChooser.showDialog(primaryStage);
-       if(selectedDirectory == null) return;
-       //
+
     }
 
     @FXML
@@ -975,29 +974,53 @@ public class FileBrowserController {
 
     // endregion
 
-    private void serializeEverything() {
-        try (FileOutputStream fileOut = new FileOutputStream("objects.sav");
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
-            out.writeObject(fileFSTree);
-            out.writeObject(fileAssignmentTable);
-            System.out.println("Serialization complete on file: objects.sav");
-        } catch (IOException i) {
-            i.printStackTrace();
+    // region [Serialization]
+
+    private void serializeEverything(File out) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(out);
+            ObjectOutputStream objectWriter = new ObjectOutputStream(fileOut);
+
+            objectWriter.writeObject(fileFSTree);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void deserializeEverything() {
-        try (FileInputStream fileIn = new FileInputStream("objects.ser");
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            fileFSTree = (FSTree) in.readObject();
-            fileAssignmentTable = (HashMap<Path, TreeItem<FileEntity>>) in.readObject();
-        } catch (IOException i) {
-            i.printStackTrace();
-        } catch (ClassNotFoundException c) {
-            System.out.println("Class not found");
-            c.printStackTrace();
+    private TreeItem<FileEntity> rebuildFSTree(FileNode root) {
+        if (root.getFile().getFileType() == FileTypes.DIRECTACCESS)
+            rootItemDA.getChildren().add(new TreeItem<>(root.getFile()));
+
+        TreeItem<FileEntity> thisTreeItem = new TreeItem<>(root.getFile());
+
+        fileAssignmentTable.put(thisTreeItem.getValue().getPath(), thisTreeItem);
+
+        for (FileNode child : root.getChildren())
+            thisTreeItem.getChildren().add(rebuildFSTree(child));
+
+        return thisTreeItem;
+    }
+
+    private void deserializeEverything(File in) {
+        try {
+            FileInputStream fileIn = new FileInputStream(in);
+            ObjectInputStream objectReader = new ObjectInputStream(fileIn);
+
+            fileFSTree = (FSTree) objectReader.readObject();
+
+            // rebuild TreeView and fileAssignmentTable
+            rootItemMP = rebuildFSTree(fileFSTree.getRoot());
+            treeViewMP.setRoot(rootItemMP);
+            treeViewMP.refresh();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Invalid file format");
+            throw new RuntimeException(e);
         }
     }
+
+    // endregion
 
     @FXML
     public void quit(){

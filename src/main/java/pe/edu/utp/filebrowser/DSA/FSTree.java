@@ -5,6 +5,8 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
 
 import java.io.Serializable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -91,6 +93,10 @@ public class FSTree implements Serializable {
         return null;
     }
 
+    public FileNode getRoot() {
+        return root;
+    }
+
     private FileNode getNode(Path directoryPath){
         return getNodeRecursively(directoryPath, root);
     }
@@ -172,5 +178,17 @@ public class FSTree implements Serializable {
         String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
         Predicate<String> condition = key -> key.matches(regex);
         lookupTable.remove(condition);
+    }
+
+    private void depthFirst(Consumer<FileNode> fileNodeConsumer, FileNode current) {
+        if (current.getChildren().size() == 0)
+            return;
+        for (FileNode x : current.getChildren())
+            fileNodeConsumer.accept(x);
+        fileNodeConsumer.accept(current);
+    }
+
+    public void depthFirst(Consumer<FileNode> fileNodeConsumer) {
+        depthFirst(fileNodeConsumer, root);
     }
 }

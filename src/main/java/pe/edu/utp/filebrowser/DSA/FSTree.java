@@ -33,6 +33,9 @@ public class FSTree implements Serializable {
         if (parentNode == null)
             return false;
 
+        if(lookupTable.get(file.getPath().toString()) != null)
+            return false; // file with the same name and path exists
+
         FileNode child = parentNode.pushChildren(file);
 
         if (child == null)

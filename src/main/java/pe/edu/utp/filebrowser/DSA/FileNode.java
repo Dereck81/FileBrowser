@@ -28,7 +28,7 @@ public class FileNode implements Serializable {
      * @return true if the file is contained in the subtree, otherwise false.
      */
     public boolean contains(FileEntity target) {
-        if (data.equals(target))
+        if (data.compareTo(target) == 0)
             return true;
 
         for (FileNode fn : children)
@@ -72,4 +72,5 @@ public class FileNode implements Serializable {
     public int subtreeSize() {
         return children.size();
     }
+
 }

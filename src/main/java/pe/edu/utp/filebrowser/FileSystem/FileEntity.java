@@ -131,8 +131,12 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
     @Override
     public int compareTo(FileEntity o) {
-        if ( (directoryPath == null && o.getDirectoryPath() == null)
-                || (directoryPath.equals(o.getDirectoryPath())))
+        if ((getDirectoryPath() == null && o.getDirectoryPath() == null)
+                || (getDirectoryPath().equals(o.getDirectoryPath()))) {
+
+            if (name == null || o.getName() == null)
+                return -1;
+
             if (name.equals(o.getName()))
                 return 0; // comment this line if the following lines are not commented
                 //if(fileTypes == o.getFileType()) return 0;
@@ -141,6 +145,7 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
                 //commented line, because the ext4 file system
                 // is not being used.
             else return -1;
+        }
         return -1;
     }
 
@@ -148,4 +153,5 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
     public String toString() {
         return name;
     }
+
 }

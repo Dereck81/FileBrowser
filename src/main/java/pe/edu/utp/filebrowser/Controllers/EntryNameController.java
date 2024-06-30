@@ -3,8 +3,15 @@ package pe.edu.utp.filebrowser.Controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
+import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.Utilites.JavaFXGlobalExceptionHandler;
+
+import java.io.File;
+import java.util.Objects;
 
 public class EntryNameController {
 
@@ -12,6 +19,8 @@ public class EntryNameController {
     private TextField textFieldName;
     @FXML
     private Button buttonAccept;
+    @FXML
+    private ImageView imageView;
 
     private String name;
     private String nameInput;
@@ -41,7 +50,7 @@ public class EntryNameController {
     }
 
     public String getName(){
-        return name;
+        return name.trim();
     }
 
     public void setName(String name){
@@ -58,5 +67,24 @@ public class EntryNameController {
         getStage().setTitle(title);
     }
 
+    public void setFileType(FileTypes ft){
+        setImageView(ft);
+    }
+
+    private void setImageView(FileTypes ft) {
+        String path = switch (ft) {
+            case FOLDER -> "imgs/folder.png";
+            case PLAINTEXT -> "imgs/file.png";
+            case VIRTUALDISK -> "imgs/virtualdisk.png";
+            case DIRECTACCESS_FOLDER -> "imgs/folder_da.png";
+            case DIRECTACCESS_PLAINTEXT -> "imgs/file_da.png";
+            case DIRECTACCESS_VIRTUALDISK -> "imgs/virtualdisk_da.png";
+            default -> "imgs/unkown.png";
+        };
+        File file = new File(Objects
+                .requireNonNull(FileBrowser.class.getResource(path))
+                .getPath().substring(1));
+        imageView.setImage(new Image(file.toURI().toString()));
+    }
 
 }

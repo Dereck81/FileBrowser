@@ -52,6 +52,18 @@ public class FileNode implements Serializable {
         return nd;
     }
 
+    public boolean pushChildren(FileNode child){
+        if (this.data.getFileType() == FileTypes.PLAINTEXT)
+            return false;
+
+        if (contains(child.getFile()))
+            return false;
+
+        this.children.pushBack(child);
+
+        return true;
+    }
+
     /**
      * Deletes the subtree initiated by a given child of this node.
      * @param subtreeRoot

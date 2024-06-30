@@ -4,7 +4,6 @@ import pe.edu.utp.filebrowser.FileSystem.FileEntity;
 import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
 
-import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -56,6 +55,32 @@ public class FSTree implements Serializable {
         parentNode.deleteSubtree(childNode);
         removeLookupTable(childNode.getFile().getPath().toString());
     }
+
+    private FileNode pop(FileEntity fe){
+        FileNode childNode = lookupTable.get(fe.getPath().toString());
+        if(childNode == null) return null;
+        remove(fe);
+        if(lookupTable.get(fe.getPath().toString()) != null) return null;
+        return childNode;
+    }
+
+    public boolean move(FileEntity fe, Path dest){
+        FileNode fn = lookupTable.get(fe.getPath().toString());
+        FileNode oldParentNode = lookupTable.get(fe.getDirectoryPath().getPath());
+        if(fn == null || oldParentNode == null) return false;
+        oldParentNode.deleteSubtree(fn);
+
+        String pathOld = fn.getFile().getPath().toString();
+        FileNode newParentNode = lookupTable.get(dest.getPath());
+        fn.getFile().setFileEntityParent(newParentNode.getFile());
+        if(!newParentNode.pushChildren(fn)){
+            fn.getFile().setFileEntityParent(oldParentNode.getFile());
+            return false;
+        }
+        updateLookupTable(pathOld);
+        return true;
+    }
+
 
     private FileNode searchNode(FileNode branch, String name) {
         // This function needs to be analyzed and fixed

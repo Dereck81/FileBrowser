@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -15,6 +16,7 @@ import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
 import pe.edu.utp.filebrowser.IO.IO;
 import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
+import pe.edu.utp.filebrowser.OS.OSUtils;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
 import pe.edu.utp.filebrowser.Enums.ConfirmationOptions;
@@ -98,6 +100,9 @@ public class FileBrowserController {
     // File Chooser
     private FileChooser fileChooserSaveFile, fileChooserOpen;
 
+    // Directory Chooser
+    private DirectoryChooser directoryChooser;
+
     // File
     private File file;
 
@@ -156,6 +161,10 @@ public class FileBrowserController {
         fileChooserSaveFile.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("SAV", "*.sav")
         );
+        // directoryChooser
+        directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select directory to create the file system");
+        directoryChooser.setInitialDirectory(new File(OSUtils.getProperty("user.home")));
     }
 
     private void setupContextMenu() {
@@ -204,6 +213,9 @@ public class FileBrowserController {
             FileEntity fe = tableView.getSelectionModel().getSelectedItem();
             removeFileEntity(fe);
         });
+        MenuItem paste = new MenuItem("Paste");
+        paste.setOnAction(_ -> pasteFileEntity());
+
         // contextMenuFO
         MenuItem createDiskMI = new MenuItem("Create a new virtual disk");
         createDiskMI.setOnAction(_ -> createVirtualDisk());
@@ -219,7 +231,7 @@ public class FileBrowserController {
         });
 
         contextMenuTableV.getItems().setAll(createShortCutTableV, editNameTableV, copyPathTableV, copy, cut, delete);
-        contextMenuFO.getItems().setAll(createDiskMI, createFolderMI, createPlainTextMI);
+        contextMenuFO.getItems().setAll(createDiskMI, createFolderMI, createPlainTextMI, paste);
         contextMenuTreeDA.getItems().setAll(editNameTreeDA, copyPathTreeDA);
         contextMenuTreeMP.getItems().setAll(editNameTreeMP, copyPathTreeMP);
     }
@@ -460,7 +472,7 @@ public class FileBrowserController {
 
     @FXML
     private void openFile() {
-        file = fileChooserOpen.showOpenDialog(null);
+        file = fileChooserOpen.showOpenDialog(primaryStage);
         if (file == null) return;
         IO.writeRecordRecentFiles(file.getPath());
         updateRecentFiles();
@@ -474,7 +486,7 @@ public class FileBrowserController {
                 "Do you want to save the file?"
         );
         if (co != ConfirmationOptions.YES) return;
-        file = fileChooserSaveFile.showSaveDialog(null);
+        file = fileChooserSaveFile.showSaveDialog(primaryStage);
         if (file == null) return;
         if (ObjectSerializationUtil.serialize(fileAssignmentTable, fileFSTree, file.getPath()))
             JavaFXGlobalExceptionHandler.alertInformation(
@@ -549,14 +561,14 @@ public class FileBrowserController {
             );
             return;
         }
-        Path pathOld = fe.getPath();
+        Path oldPath = fe.getPath();
         if (fe instanceof DirectAccess) {
             fe.setName(newName);
-            updateFAT(pathOld);
+            updateFAT(oldPath);
             return;
         }
         fileFSTree.updateFilename(fe, newName);
-        updateFAT(pathOld);
+        updateFAT(oldPath);
         tableView.refresh();
         treeViewMP.refresh();
         treeViewDA.refresh();
@@ -572,7 +584,6 @@ public class FileBrowserController {
         labelPathFileName.setText(fe.getDirectoryPath().getPath());
         paneInfo.setVisible(true);
         JavaFXNotifications.notificationInformation(null, "File ready to move.");
-        //falta distinguir
     }
 
     private void copyFileEntity(FileEntity fe) {
@@ -586,8 +597,54 @@ public class FileBrowserController {
         JavaFXNotifications.notificationInformation(null, "File ready to paste.");
     }
 
-    private void pasteFileEntity(FileEntity fe){
+    private void pasteFileEntity(){
+        if(labelAction.getText().equals("Cut"))
+            pasteFileEntityCut();
+        else if (labelAction.getText().equals("Copy"))
+            pasteFileEntityCopy();
+        resetInformationPane();
+    }
 
+    private void pasteFileEntityCut(){
+        FileEntity fe = fileTransferStack.pop();
+        if(fe == null) return;
+        if(fe.getDirectoryPath() == pathIsSelected) {
+            // action when trying to paste in the same directory
+            resetInformationPane();
+            return;
+        }
+
+        Path oldPath = fe.getPath();
+
+        TreeItem<FileEntity> parent = fileAssignmentTable.get(fe.getDirectoryPath());
+        TreeItem<FileEntity> child = fileAssignmentTable.get(fe.getPath());
+
+        if(!fileFSTree.move(fe, pathIsSelected)) return;
+
+        TreeItem<FileEntity> newParent = fileAssignmentTable.get(fe.getDirectoryPath());
+
+        parent.getChildren().remove(child);
+        newParent.getChildren().add(child);
+
+        updateFAT(oldPath);
+        treeViewDA.refresh();
+        treeViewMP.refresh();
+        tableView.getItems().clear();
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+        resetInformationPane();
+    }
+
+    private void pasteFileEntityCopy(){
+        FileEntity fe = fileTransferStack.pop();
+        if(fe == null) return;
+
+        resetInformationPane();
+    }
+
+    private void resetInformationPane(){
+        labelAction.setText("None");
+        labelFileName.setText("None");
+        labelPathFileName.setText("None");
     }
 
     private void copyToClipboard(FileEntity fe) {
@@ -615,11 +672,15 @@ public class FileBrowserController {
         if (fe instanceof VirtualDiskDriver) {
             rootItemMP.getChildren().remove(child);
         } else if (fe instanceof DirectAccess) {
-            rootItemDA.getChildren().remove(child);
+            rootItemDA.getChildren().forEach(ti -> {
+                if(ti.getValue().compareTo(fe) == 0){
+                    rootItemDA.getChildren().remove(ti);
+                }
+            });
             parent.getChildren().remove(child);
         } else {
             parent.getChildren().remove(child);
-        }// check
+        }
 
         treeViewDA.refresh();
         treeViewMP.refresh();
@@ -631,16 +692,16 @@ public class FileBrowserController {
 
     // region [METHODS TO MANAGE FAT]
 
-    private void updateFAT(Path pathOld){
-        String escapedPathOld = Pattern.quote(pathOld.getPath());
+    private void updateFAT(Path oldPath){
+        String escapedPathOld = Pattern.quote(oldPath.getPath());
         String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
         Predicate<Path> condition = key -> key.getPath().matches(regex);
         KeyUpdater<Path, TreeItem<FileEntity>> updater = (_, value) -> value.getValue().getPath();
         fileAssignmentTable.update(condition, updater);
     }
 
-    private void removeFAT(Path pathOld){
-        String escapedPathOld = Pattern.quote(pathOld.toString());
+    private void removeFAT(Path oldPath){
+        String escapedPathOld = Pattern.quote(oldPath.toString());
         String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
         Predicate<Path> condition = key -> key.getPath().matches(regex);
         fileAssignmentTable.remove(condition);
@@ -815,7 +876,9 @@ public class FileBrowserController {
                "Create file directory on hard drive",
                "Do you wish to continue?", "This action can not be undone.");
        if(co != ConfirmationOptions.YES) return;
-
+       File selectedDirectory = directoryChooser.showDialog(primaryStage);
+       if(selectedDirectory == null) return;
+       //
     }
 
     @FXML
@@ -944,6 +1007,11 @@ public class FileBrowserController {
     public void setStage(Stage stage){
         this.primaryStage = stage;
     }
+
+    private void resetApplication(){
+
+    }
+
 
     public void deselectListCell(Section...sections) {
         isDeselectionByUser = false;

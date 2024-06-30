@@ -24,9 +24,8 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 
 import static pe.edu.utp.filebrowser.TreeAndTable.CellUtilityManager.handleSelectedCellPressed;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+
 import pe.edu.utp.filebrowser.FileSystem.Path;
 import pe.edu.utp.filebrowser.Utilites.JavaFXNotifications;
 
@@ -115,10 +114,10 @@ public class FileBrowserController {
 
     // DSA
     // Tree
-    private final FSTree fileFSTree = new FSTree();
+    private FSTree fileFSTree = new FSTree();
 
     // HashMap
-    private final HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
+    private HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
 
     // Stack
     private final DynamicStack<Path> BackwardPathStack = new DynamicStack<>();
@@ -847,6 +846,30 @@ public class FileBrowserController {
         Path path = new Path(generateValidPath(inputPath));
         if(Objects.equals(path, BackwardPathStack.peek())) backwardPath();
         else gotToDirectory(path);
+    }
+
+    private void serializeEverything() {
+        try (FileOutputStream fileOut = new FileOutputStream("objects.sav");
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(fileFSTree);
+            out.writeObject(fileAssignmentTable);
+            System.out.println("Serialization complete on file: objects.sav");
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    private void deserializeEverything() {
+        try (FileInputStream fileIn = new FileInputStream("objects.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            fileFSTree = (FSTree) in.readObject();
+            fileAssignmentTable = (HashMap<Path, TreeItem<FileEntity>>) in.readObject();
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+        }
     }
 
     @FXML

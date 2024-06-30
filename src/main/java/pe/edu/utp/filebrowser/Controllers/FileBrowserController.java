@@ -431,11 +431,12 @@ public class FileBrowserController {
 
     @FXML
     private void saveFile() throws Exception {
-        JavaFXGlobalExceptionHandler.alertInformation(
+        ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
                 "Save file",
                 "Save file",
                 "Do you want to save the file?"
         );
+        if(co != ConfirmationOptions.YES) return;
         file = fileChooserSaveFile.showSaveDialog(null);
         if (file == null) return;
         if(ObjectSerializationUtil.serialize(fileAssignmentTable, fileFSTree, file.getPath()))

@@ -50,7 +50,7 @@ public class FileBrowserController {
 
     // Menu
     @FXML
-    private Menu menuOpenRecentFile;
+    private Menu menuOpenRecentFile, menuActions;
 
     // TreeView
     @FXML
@@ -122,7 +122,8 @@ public class FileBrowserController {
     private FSTree fileFSTree = new FSTree();
 
     // HashMap
-    private HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
+    private final HashMap<Path, TreeItem<FileEntity>> fileAssignmentTable = new HashMap<>();
+    private final HashMap<Path, TreeItem<FileEntity>> fileAssignmentTableDA = new HashMap<>();
 
     // Stack
     private final DynamicStack<Path> BackwardPathStack = new DynamicStack<>();
@@ -466,6 +467,10 @@ public class FileBrowserController {
         }
     }
 
+    public void setStage(Stage stage){
+        this.primaryStage = stage;
+    }
+
     // endregion
 
     // region [METHODS THAT HANDLE FILES]
@@ -501,7 +506,7 @@ public class FileBrowserController {
 
     @FXML
     private void closeFile() {
-
+        resetApplication();
     }
 
     /**
@@ -568,11 +573,12 @@ public class FileBrowserController {
         Path oldPath = fe.getPath();
         if (fe instanceof DirectAccess) {
             fe.setName(newName);
-            updateFAT(oldPath);
+            updateFAT(oldPath, fileAssignmentTable);
+            updateFAT(oldPath, fileAssignmentTableDA);
             return;
         }
         fileFSTree.updateFilename(fe, newName);
-        updateFAT(oldPath);
+        updateFAT(oldPath, fileAssignmentTable);
         tableView.refresh();
         treeViewMP.refresh();
         treeViewDA.refresh();
@@ -614,14 +620,12 @@ public class FileBrowserController {
             pasteFileEntityCut();
         else if (labelAction.getText().equals("Copy"))
             pasteFileEntityCopy();
-        resetInformationPane(); // delete
     }
 
     private void pasteFileEntityCut(){
         FileEntity fe = fileTransferStack.pop();
         if(fe == null) return;
         if(fe.getDirectoryPath() == pathIsSelected) {
-            // action when trying to paste in the same directory
             resetInformationPane();
             return;
         }
@@ -638,7 +642,8 @@ public class FileBrowserController {
         parent.getChildren().remove(child);
         newParent.getChildren().add(child);
 
-        updateFAT(oldPath);
+        updateFAT(oldPath, fileAssignmentTable);
+        updateFAT(oldPath, fileAssignmentTableDA);
         treeViewDA.refresh();
         treeViewMP.refresh();
         tableView.getItems().clear();
@@ -649,6 +654,10 @@ public class FileBrowserController {
     private void pasteFileEntityCopy(){
         FileEntity fe = fileTransferStack.pop();
         if(fe == null) return;
+        if(fe.getDirectoryPath() == pathIsSelected) {
+            resetInformationPane();
+            return;
+        }
 
         if(!fileFSTree.copy(fe, pathIsSelected)) return;
 
@@ -689,20 +698,21 @@ public class FileBrowserController {
         TreeItem<FileEntity> parent = fileAssignmentTable.get(fe.getDirectoryPath());
         TreeItem<FileEntity> child = fileAssignmentTable.get(fe.getPath());
         fileFSTree.remove(fe);
-        removeFAT(fe.getPath());
+        removeFAT(fe.getPath(), fileAssignmentTable);
 
         if (fe instanceof VirtualDiskDriver) {
             rootItemMP.getChildren().remove(child);
-        } else if (fe instanceof DirectAccess) {
-            // FIXED!!!
-            rootItemDA.getChildren().forEach(ti -> {
-                if(ti.getValue().compareTo(fe) == 0){
-                    rootItemDA.getChildren().remove(ti);
-                }
-            });
-            parent.getChildren().remove(child);
         } else {
             parent.getChildren().remove(child);
+        }
+
+        Object[] keys = fileAssignmentTableDA.getKeys(
+                createPathMatchingPredicate(fe.getPath().toString()));
+        for (int i = 0; i < keys.length; i++) {
+            rootItemDA.getChildren().remove(fileAssignmentTableDA.get((Path) keys[i]));
+        }
+        if(keys.length > 0) {
+            removeFAT(fe.getPath(), fileAssignmentTableDA);
         }
 
         treeViewDA.refresh();
@@ -711,23 +721,52 @@ public class FileBrowserController {
         tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
     }
 
+    @FXML
+    private void convertToPhysicalDirectory() throws Exception {
+        ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
+                "Create file directory on hard drive",
+                "Do you wish to continue?", "This action can not be undone.");
+        if(co != ConfirmationOptions.YES) return;
+        File directory =  directoryChooser.showDialog(primaryStage);
+        if (directory == null) return;
+        SystemElementCreator.createFileSystemStructure(
+                fileFSTree.getRoot(), directory.getPath()
+        );
+        JavaFXGlobalExceptionHandler.alertInformation(
+                "Completed process",
+                "File export completed",
+                "All files created in the program were exported."
+        );
+    }
+
+    @FXML
+    public void quit(){
+        Platform.exit();
+    }
+
     // endregion
 
     // region [METHODS TO MANAGE FAT]
 
-    private void updateFAT(Path oldPath){
+    private void updateFAT(Path oldPath, HashMap<Path, TreeItem<FileEntity>> fat){
         String escapedPathOld = Pattern.quote(oldPath.getPath());
         String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
         Predicate<Path> condition = key -> key.getPath().matches(regex);
         KeyUpdater<Path, TreeItem<FileEntity>> updater = (_, value) -> value.getValue().getPath();
-        fileAssignmentTable.update(condition, updater);
+        fat.update(condition, updater);
     }
 
-    private void removeFAT(Path oldPath){
+    private void removeFAT(Path oldPath, HashMap<Path, TreeItem<FileEntity>> fat){
         String escapedPathOld = Pattern.quote(oldPath.toString());
         String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
         Predicate<Path> condition = key -> key.getPath().matches(regex);
-        fileAssignmentTable.remove(condition);
+        fat.remove(condition);
+    }
+
+    private Predicate<Path> createPathMatchingPredicate(String oldPath){
+        String escapedOldPath = Pattern.quote(oldPath);
+        String regex = "^" + escapedOldPath + "("+Path.separatorToUseRgx+".*)?$";
+        return key -> key.getPath().matches(regex);
     }
 
     // endregion
@@ -807,8 +846,10 @@ public class FileBrowserController {
         // modify when moving said shortcut (disk shortcut)
         TreeItem<FileEntity> treeItemParent = fileAssignmentTable.get(directAccess.getShortcutDirectoryPath());
         TreeItem<FileEntity> currentFileTI1 = new TreeItem<>(directAccess);
-        if(createFile(directAccess, treeItemParent))
+        if(createFile(directAccess, treeItemParent)) {
+            fileAssignmentTableDA.put(directAccess.getPath(), currentFileTI1);
             rootItemDA.getChildren().add(currentFileTI1);
+        }
     }
 
     // endregion
@@ -909,31 +950,6 @@ public class FileBrowserController {
 
     // endregion
 
-    @FXML
-    private void convertToPhysicalDirectory() throws Exception {
-       ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
-               "Create file directory on hard drive",
-               "Do you wish to continue?", "This action can not be undone.");
-       if(co != ConfirmationOptions.YES) return;
-       File directory =  directoryChooser.showDialog(primaryStage);
-       if (directory == null) return;
-       SystemElementCreator.createFileSystemStructure(
-                fileFSTree.getRoot(), directory.getPath()
-       );
-       JavaFXGlobalExceptionHandler.alertInformation(
-               "Completed process",
-               "File export completed",
-               "All files created in the program were exported."
-       );
-    }
-
-    @FXML
-    protected void test() throws Exception{
-        //fileAssignmentTable.getKeys();
-        //ObjectSerializationUtil.Serializable_(fileAssignmentTable, fileTree, "C:\\Users\\DERECK\\IdeaProjects\\FileBrowser\\src\\main\\resources\\pe\\edu\\utp\\filebrowser\\object1.ser");
-        //ObjectSerializationUtil.test(new VirtualDiskDriver("asd", Path.of("asd")));
-    }
-
     // region [TEXT EDITOR METHODS]
 
     private void openTextEditor(FileEntity fileEntity){
@@ -990,7 +1006,6 @@ public class FileBrowserController {
     // endregion
 
     // region [METHODS FOR THE SEARCH FUNCTION]
-    // THE METHOD NEEDS TO BE FIXED
     @FXML
     private void search(){
         String target = textField_search.getText();
@@ -1007,6 +1022,7 @@ public class FileBrowserController {
         buttonClearSearch.setDisable(false);
         textField_inputPath.setDisable(true);
         buttonUpDirectory.setDisable(true);
+        menuActions.setDisable(true);
     }
 
     @FXML
@@ -1018,7 +1034,8 @@ public class FileBrowserController {
         buttonBackwardPath.setDisable(false);
         buttonClearSearch.setDisable(true);
         textField_inputPath.setDisable(false);
-        buttonUpDirectory.setDisable(false);
+        buttonUpDirectory.setDisable(pathIsSelected == rootPath);
+        menuActions.setDisable(false);
     }
 
     // endregion
@@ -1037,8 +1054,11 @@ public class FileBrowserController {
     }
 
     private TreeItem<FileEntity> rebuildFSTree(FileNode root) {
-        if (root.getFile() instanceof DirectAccess)
-            rootItemDA.getChildren().add(new TreeItem<>(root.getFile()));
+        if (root.getFile() instanceof DirectAccess) {
+            TreeItem<FileEntity> thisTreeItemDA = new TreeItem<>(root.getFile());
+            fileAssignmentTableDA.put(root.getFile().getPath(), thisTreeItemDA);
+            rootItemDA.getChildren().add(thisTreeItemDA);
+        }
 
         TreeItem<FileEntity> thisTreeItem = new TreeItem<>(root.getFile());
 
@@ -1055,12 +1075,11 @@ public class FileBrowserController {
             FileInputStream fileIn = new FileInputStream(in);
             ObjectInputStream objectReader = new ObjectInputStream(fileIn);
 
+            resetApplication();
+
             fileFSTree = (FSTree) objectReader.readObject();
 
             // rebuild TreeView and fileAssignmentTable
-            rootItemDA.getChildren().clear();
-            fileAssignmentTable.clear();
-
             rootItemMP = rebuildFSTree(fileFSTree.getRoot());
             treeViewMP.setRoot(rootItemMP);
             treeViewMP.refresh();
@@ -1076,14 +1095,10 @@ public class FileBrowserController {
 
     // endregion
 
+    // region [OTHERS METHODS]
 
     @FXML
-    public void quit(){
-        Platform.exit();
-    }
-
-    public void setStage(Stage stage){
-        this.primaryStage = stage;
+    protected void test(){
     }
 
     private void resetApplication(){
@@ -1095,6 +1110,7 @@ public class FileBrowserController {
         textField_inputPath.clear();
 
         fileAssignmentTable.clear();
+        fileAssignmentTableDA.clear();
         fileFSTree.clear();
 
         rootItemMP.getChildren().clear();
@@ -1107,12 +1123,13 @@ public class FileBrowserController {
         buttonClearSearch.setDisable(true);
         buttonUpDirectory.setDisable(true);
 
+        menuActions.setDisable(false);
 
-        goToDirectory(rootPath);
+        pathIsSelected = rootPath;
+
         resetInformationPane();
 
     }
-
 
     public void deselectListCell(Section...sections) {
         isDeselectionByUser = false;
@@ -1140,6 +1157,6 @@ public class FileBrowserController {
         isDeselectionByUser = true;
     }
 
-
+    // endregion
 
 }

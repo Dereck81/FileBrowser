@@ -65,12 +65,7 @@
             <MenuItem mnemonicParsing="false" onAction="#quit" text="Quit" />
           </items>
         </Menu>
-            <Menu mnemonicParsing="false" text="Home">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#test" text="Test Application" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Actions">
+            <Menu fx:id="menuActions" mnemonicParsing="false" text="Actions">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#createVirtualDisk" text="Create a new virtual disk" />
                   <MenuItem mnemonicParsing="false" onAction="#createFolder" text="Create a new folder " />

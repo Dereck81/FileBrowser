@@ -7,6 +7,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.Controllers.FileBrowserController;
 import pe.edu.utp.filebrowser.Enums.Section;
+import pe.edu.utp.filebrowser.Utilites.JavaFXGlobalExceptionHandler;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class FileBrowser extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        //Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
+        Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
         FXMLLoader fxmlLoader = new FXMLLoader(FileBrowser.class.getResource("FileBrowser.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1077, 620);
         FileBrowserController controller = fxmlLoader.getController();

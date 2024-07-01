@@ -17,6 +17,7 @@ import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
 import pe.edu.utp.filebrowser.IO.IO;
 import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
+import pe.edu.utp.filebrowser.IO.SystemElementCreator;
 import pe.edu.utp.filebrowser.OS.OSUtils;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
 import pe.edu.utp.filebrowser.FileSystem.RootItem;
@@ -490,10 +491,14 @@ public class FileBrowserController {
                 "Do you want to save the file?"
         );
         if (co != ConfirmationOptions.YES) return;
-        file = fileChooserSaveFile.showSaveDialog(null);
-        if (file == null)
-            return;
+        file = fileChooserSaveFile.showSaveDialog(primaryStage);
+        if (file == null) return;
         serializeEverything(file);
+        JavaFXGlobalExceptionHandler.alertInformation(
+                "Saved file",
+                "Saved file",
+                "The changes were saved to the file indicated."
+        );
     }
 
     @FXML
@@ -895,12 +900,21 @@ public class FileBrowserController {
     // endregion
 
     @FXML
-    private void convertToPhysicalDirectory(){
+    private void convertToPhysicalDirectory() throws Exception {
        ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
                "Create file directory on hard drive",
                "Do you wish to continue?", "This action can not be undone.");
        if(co != ConfirmationOptions.YES) return;
-
+       File directory =  directoryChooser.showDialog(primaryStage);
+       if (directory == null) return;
+       SystemElementCreator.createFileSystemStructure(
+                fileFSTree.getRoot(), directory.getPath()
+       );
+       JavaFXGlobalExceptionHandler.alertInformation(
+               "Completed process",
+               "File export completed",
+               "All files created in the program were exported."
+       );
     }
 
     @FXML
@@ -1049,6 +1063,7 @@ public class FileBrowserController {
     }
 
     // endregion
+
 
     @FXML
     public void quit(){

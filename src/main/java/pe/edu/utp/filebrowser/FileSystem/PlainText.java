@@ -20,6 +20,17 @@ public class PlainText extends FileEntity implements Serializable {
         super(fileName, FileTypes.PLAINTEXT, fileEntityParent, LocalDateTime.now());
     }
 
+    public PlainText(String fileName, FileEntity fileEntityParent,
+                     LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, modificationDate, creationDate);
+    }
+
+    public PlainText(String fileName, FileEntity fileEntityParent, String content,
+                     LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, modificationDate, creationDate);
+        this.content = content;
+    }
+
 
     public int getSize(){
         return content.getBytes().length;

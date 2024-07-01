@@ -19,6 +19,11 @@ public class Folder extends FileEntity implements Serializable {
         super(folderName, FileTypes.FOLDER, fileEntityParent, LocalDateTime.now());
     }
 
+    public Folder(String folderName, FileEntity fileEntityParent,
+                  LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(folderName, FileTypes.FOLDER, fileEntityParent, modificationDate, creationDate);
+    }
+
     public void setModificationDate(){
         super.setModificationDate(LocalDateTime.now());
     }

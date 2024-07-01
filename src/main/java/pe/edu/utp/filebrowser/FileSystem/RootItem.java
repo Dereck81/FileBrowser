@@ -8,6 +8,7 @@ import pe.edu.utp.filebrowser.FileBrowser;
 
 import java.io.File;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class RootItem extends FileEntity implements Serializable {
@@ -18,6 +19,17 @@ public class RootItem extends FileEntity implements Serializable {
         super(null, null, new Path(Path.separatorToUse), null);
         this.name = name;
         this.fileType = fileType;
+    }
+
+    public RootItem(String name, FileTypes fileType,
+                    LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(null, null, new Path(Path.separatorToUse), modificationDate, creationDate);
+        this.name = name;
+        this.fileType = fileType;
+    }
+
+    public FileTypes getFileTypes(){
+        return this.fileType;
     }
 
     public Pane getPane(){

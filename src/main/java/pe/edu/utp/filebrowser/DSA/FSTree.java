@@ -27,14 +27,17 @@ public class FSTree implements Serializable {
         lookupTable.put(root.getFile().getPath().toString(), root);
     }
 
+    // region [FILE MANIPULATION METHODS]
+
+    public FileNode getRoot() {
+        return root;
+    }
+
     public boolean push(FileEntity file) {
         //FileNode parentNode = getNode(file.getDirectoryPath());
         FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
         if (parentNode == null)
             return false;
-
-        if(lookupTable.get(file.getPath().toString()) != null)
-            return false; // file with the same name and path exists
 
         FileNode child = parentNode.pushChildren(file);
 
@@ -46,7 +49,6 @@ public class FSTree implements Serializable {
     }
 
     public void remove(FileEntity file){
-        //FileNode parentNode = getNode(file.getDirectoryPath());
         FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
         if(parentNode == null)
             return;
@@ -73,6 +75,12 @@ public class FSTree implements Serializable {
 
         String pathOld = fn.getFile().getPath().toString();
         FileNode newParentNode = lookupTable.get(dest.getPath());
+
+        if(newParentNode == null){
+            fn.getFile().setFileEntityParent(oldParentNode.getFile());
+            return false;
+        }
+
         fn.getFile().setFileEntityParent(newParentNode.getFile());
         if(!newParentNode.pushChildren(fn)){
             fn.getFile().setFileEntityParent(oldParentNode.getFile());
@@ -82,6 +90,35 @@ public class FSTree implements Serializable {
         return true;
     }
 
+    public boolean copy(FileEntity fe, Path dest){
+        FileNode fn = lookupTable.get(fe.getPath().toString());
+        if(fn == null) return false;
+
+        FileNode newParentNode = lookupTable.get(dest.getPath());
+
+        if(newParentNode == null) return false;
+
+        cloneSubtreeAndInsert(fn, newParentNode);
+
+        return true;
+    }
+
+    private void cloneSubtreeAndInsert(FileNode fn, FileNode parent){
+        FileEntity clonedFileEntity = fn.getFile().deepCopy();
+        clonedFileEntity.setFileEntityParent(parent.getFile());
+
+        if (push(clonedFileEntity)) {
+            FileNode clonedNode = lookupTable.get(clonedFileEntity.getPath().toString());
+
+            for (FileNode child : fn.getChildren()) {
+                cloneSubtreeAndInsert(child, clonedNode);
+            }
+        }
+    }
+
+    // endregion
+
+    // region [NODE SEARCH METHODS]
 
     private FileNode searchNode(FileNode branch, String name) {
         // This function needs to be analyzed and fixed
@@ -92,12 +129,8 @@ public class FSTree implements Serializable {
         return null;
     }
 
-    public FileNode getRoot() {
-        return root;
-    }
-
-    private FileNode getNode(Path directoryPath){
-        return getNodeRecursively(directoryPath, root);
+    public FileNode getNode(Path directoryPath){
+        return lookupTable.get(directoryPath.getPath());
     }
 
     private FileNode getNodeRecursively(Path directoryPath, FileNode branch){
@@ -119,6 +152,10 @@ public class FSTree implements Serializable {
         FileNode node = searchNode(branch, directoryPath.getName(0).toString());
         return getNodeRecursively(dp, node);
     }
+
+    // endregion
+
+    // region [FILE ENTITY RETRIEVAL METHODS]
 
     public FileEntity[] getChildFilesEntities(FileEntity file){
         //FileNode parentNode = getNode(file.getDirectoryPath());
@@ -150,34 +187,40 @@ public class FSTree implements Serializable {
         return node.getFile();
     }
 
+    // endregion
+
+    // region [FILE ENTITY UPDATE METHODS]
+
     public void updateFilename(FileEntity fe, String newName) {
         FileNode nd = lookupTable.get(fe.getPath().toString());
         String oldNamePath = fe.getPath().toString();
         FileEntity fe_ = nd.getFile();
         fe_.setName(newName);
         updateLookupTable(oldNamePath);
-        //lookupTable.remove(oldNamePath);
-        //lookupTable.put(fe_.getPath().toString(), nd);
-    }
-
-    private void updateLookupTable(){
-
     }
 
     private void updateLookupTable(String pathOld){
-        String escapedPathOld = Pattern.quote(pathOld);
-        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
-        Predicate<String> condition = key -> key.matches(regex);
+        Predicate<String> condition = createPathMatchingPredicate(pathOld);
         KeyUpdater<String, FileNode> updater = (_, value) -> value.getFile().getPath().toString();
         lookupTable.update(condition, updater);
     }
 
     private void removeLookupTable(String pathOld){
-        String escapedPathOld = Pattern.quote(pathOld);
-        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
-        Predicate<String> condition = key -> key.matches(regex);
+        Predicate<String> condition = createPathMatchingPredicate(pathOld);
         lookupTable.remove(condition);
     }
+
+    private Predicate<String> createPathMatchingPredicate(String pathOld){
+        String escapedPathOld = Pattern.quote(pathOld);
+        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
+        return key -> key.matches(regex);
+    }
+
+
+
+    // endregion
+
+    // region [TRAVERSAL METHODS]
 
     private void depthFirst(Consumer<FileNode> fileNodeConsumer, FileNode current) {
         if (current.getChildren().size() == 0)
@@ -190,4 +233,6 @@ public class FSTree implements Serializable {
     public void depthFirst(Consumer<FileNode> fileNodeConsumer) {
         depthFirst(fileNodeConsumer, root);
     }
+
+    // endregion
 }

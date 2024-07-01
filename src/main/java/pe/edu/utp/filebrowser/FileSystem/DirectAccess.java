@@ -17,8 +17,24 @@ public class DirectAccess extends FileEntity implements Serializable {
 
     }
 
+    public DirectAccess(String shorcutName, Path shortcutPath,
+                        FileEntity targetFile, LocalDateTime modificationDate, LocalDateTime creationDate) {
+
+        super(shorcutName, targetFile.getFileType(), shortcutPath, modificationDate, creationDate);
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
+
+    }
+
     public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile) {
         super(shortcutName, targetFile.getFileType(), fileEntityParent, LocalDateTime.now());
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
+    }
+
+    public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile,
+                        LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(shortcutName, targetFile.getFileType(), fileEntityParent, modificationDate, creationDate);
         this.targetFile = targetFile;
         super.setFileType(getFileTypeTarget());
     }

@@ -30,10 +30,30 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         this.fileEntityParent = null;
     }
 
+    public FileEntity(String name, FileTypes type, Path directoryPath,
+                      LocalDateTime modificationDate, LocalDateTime creationDate) {
+        this.fileTypes = type;
+        this.modificationDate = modificationDate;
+        this.creationDate = creationDate;
+        this.name = name;
+        this.directoryPath = directoryPath;
+        this.fileEntityParent = null;
+    }
+
     public FileEntity(String name, FileTypes type, FileEntity feParent, LocalDateTime modificationDate) {
         this.fileTypes = type;
         this.modificationDate = modificationDate;
         this.creationDate = modificationDate;
+        this.name = name;
+        this.fileEntityParent = feParent;
+        this.directoryPath = null;
+    }
+
+    public FileEntity(String name, FileTypes type, FileEntity feParent,
+                      LocalDateTime modificationDate, LocalDateTime creationDate) {
+        this.fileTypes = type;
+        this.modificationDate = modificationDate;
+        this.creationDate = creationDate;
         this.name = name;
         this.fileEntityParent = feParent;
         this.directoryPath = null;
@@ -147,6 +167,28 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
             else return -1;
         }
         return -1;
+    }
+
+    public FileEntity deepCopy(){
+        if(this instanceof VirtualDiskDriver){
+            return new VirtualDiskDriver(name, directoryPath, modificationDate, creationDate);
+        }else if(this instanceof Folder){
+            return new Folder(name, fileEntityParent, modificationDate, creationDate);
+        }else if(this instanceof PlainText){
+            return new PlainText(name, fileEntityParent, ((PlainText) this).getContent(), modificationDate, creationDate);
+        }else if(this instanceof DirectAccess){
+            if(fileEntityParent == null)
+                return new DirectAccess(name, directoryPath, ((DirectAccess) this).getTargetFile(),
+                        modificationDate, creationDate);
+            else
+                return new DirectAccess(name, fileEntityParent, ((DirectAccess) this).getTargetFile(),
+                        modificationDate, creationDate);
+        }else if (this instanceof RootItem){
+            return new RootItem(name, ((RootItem) this).getFileTypes(), modificationDate, creationDate);
+        }
+        if(fileEntityParent == null)
+            return new FileEntity(name, fileTypes, directoryPath, modificationDate, creationDate);
+        return new FileEntity(name, fileTypes, fileEntityParent, modificationDate, creationDate);
     }
 
     @Override

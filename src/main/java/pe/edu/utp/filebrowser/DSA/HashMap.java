@@ -10,7 +10,7 @@ public class HashMap<K, V> implements Serializable {
     private int size = 0;
 
     @SuppressWarnings("unchecked")
-    private final Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
+    private Bucket<K, V>[] buckets = new Bucket[DEFAULT_CAPACITY];
 
     private class KeyValuePair<K2, V2> implements Serializable{
         private final K2 key;
@@ -200,6 +200,13 @@ public class HashMap<K, V> implements Serializable {
         K[] keys = getKeys(condition);
         for (int i = 0; i < keys.length; i++)
             remove(keys[i]);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void clear(){
+        buckets = new Bucket[DEFAULT_CAPACITY];
+        generalKeys.clear();
+        size = generalKeys.size();
     }
 
 }

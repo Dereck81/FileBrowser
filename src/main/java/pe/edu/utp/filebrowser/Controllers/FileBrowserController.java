@@ -599,11 +599,19 @@ public class FileBrowserController {
     }
 
     private void pasteFileEntity(){
+        if(pathIsSelected == rootPath) {
+            JavaFXGlobalExceptionHandler.alertError(
+                    "Error",
+                    "Error when pasting file",
+                    "Cannot paste file in this path."
+            );
+            return;
+        }
         if(labelAction.getText().equals("Cut"))
             pasteFileEntityCut();
         else if (labelAction.getText().equals("Copy"))
             pasteFileEntityCopy();
-        resetInformationPane();
+        resetInformationPane(); // delete
     }
 
     private void pasteFileEntityCut(){
@@ -639,6 +647,16 @@ public class FileBrowserController {
         FileEntity fe = fileTransferStack.pop();
         if(fe == null) return;
 
+        if(!fileFSTree.copy(fe, pathIsSelected)) return;
+
+        TreeItem<FileEntity> newTI = rebuildFSTree(fileFSTree.getNode(pathIsSelected));
+        fileAssignmentTable.get(pathIsSelected).getChildren().addAll(newTI.getChildren());
+
+        treeViewDA.refresh();
+        treeViewMP.refresh();
+        tableView.getItems().clear();
+        tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+
         resetInformationPane();
     }
 
@@ -673,6 +691,7 @@ public class FileBrowserController {
         if (fe instanceof VirtualDiskDriver) {
             rootItemMP.getChildren().remove(child);
         } else if (fe instanceof DirectAccess) {
+            // FIXED!!!
             rootItemDA.getChildren().forEach(ti -> {
                 if(ti.getValue().compareTo(fe) == 0){
                     rootItemDA.getChildren().remove(ti);
@@ -978,7 +997,7 @@ public class FileBrowserController {
 
     // endregion
 
-    // region [Serialization]
+    // region [SERIALIZATION]
 
     private void serializeEverything(File out) {
         try {
@@ -1014,6 +1033,8 @@ public class FileBrowserController {
 
             // rebuild TreeView and fileAssignmentTable
             rootItemDA.getChildren().clear();
+            fileAssignmentTable.clear();
+
             rootItemMP = rebuildFSTree(fileFSTree.getRoot());
             treeViewMP.setRoot(rootItemMP);
             treeViewMP.refresh();

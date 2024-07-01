@@ -170,21 +170,29 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
     }
 
     public FileEntity deepCopy(){
-        if(this instanceof VirtualDiskDriver){
-            return new VirtualDiskDriver(name, directoryPath, modificationDate, creationDate);
-        }else if(this instanceof Folder){
-            return new Folder(name, fileEntityParent, modificationDate, creationDate);
-        }else if(this instanceof PlainText){
-            return new PlainText(name, fileEntityParent, ((PlainText) this).getContent(), modificationDate, creationDate);
-        }else if(this instanceof DirectAccess){
-            if(fileEntityParent == null)
-                return new DirectAccess(name, directoryPath, ((DirectAccess) this).getTargetFile(),
-                        modificationDate, creationDate);
-            else
-                return new DirectAccess(name, fileEntityParent, ((DirectAccess) this).getTargetFile(),
-                        modificationDate, creationDate);
-        }else if (this instanceof RootItem){
-            return new RootItem(name, ((RootItem) this).getFileTypes(), modificationDate, creationDate);
+        switch (this) {
+            case VirtualDiskDriver virtualDiskDriver -> {
+                return new VirtualDiskDriver(name, directoryPath, modificationDate, creationDate);
+            }
+            case Folder folder -> {
+                return new Folder(name, fileEntityParent, modificationDate, creationDate);
+            }
+            case PlainText plainText -> {
+                return new PlainText(name, fileEntityParent, plainText.getContent(), modificationDate, creationDate);
+            }
+            case DirectAccess directAccess -> {
+                if (fileEntityParent == null)
+                    return new DirectAccess(name, directoryPath, ((DirectAccess) this).getTargetFile(),
+                            modificationDate, creationDate);
+                else
+                    return new DirectAccess(name, fileEntityParent, ((DirectAccess) this).getTargetFile(),
+                            modificationDate, creationDate);
+            }
+            case RootItem rootItem -> {
+                return new RootItem(name, rootItem.getFileTypes(), modificationDate, creationDate);
+            }
+            default -> {
+            }
         }
         if(fileEntityParent == null)
             return new FileEntity(name, fileTypes, directoryPath, modificationDate, creationDate);

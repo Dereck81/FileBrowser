@@ -5,26 +5,45 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 
 import java.io.Serializable;
 
+/**
+ * Represents a node in a file system tree structure.
+ * Each node contains a FileEntity and a list of children nodes.
+ */
 public class FileNode implements Serializable {
     FileEntity data;
     DynamicArray<FileNode> children;
 
+    /**
+     * Constructs a FileNode with the specified FileEntity.
+     *
+     * @param data the FileEntity associated with this node
+     */
     public FileNode(FileEntity data) {
         this.data = data;
         this.children = new DynamicArray<>();
     }
 
+    /**
+     * Returns the FileEntity associated with this node.
+     *
+     * @return the FileEntity associated with this node
+     */
     public FileEntity getFile() {
         return data;
     }
 
+    /**
+     * Returns the children of this node.
+     *
+     * @return the children of this node
+     */
     public DynamicArray<FileNode> getChildren() {
         return children;
     }
 
     /**
      * Recursively checks if a given FileEntity is contained on the subtree defined by *this* node.
-     * @param target
+     * @param target the FileEntity to check for
      * @return true if the file is contained in the subtree, otherwise false.
      */
     public boolean contains(FileEntity target) {
@@ -38,6 +57,12 @@ public class FileNode implements Serializable {
         return false;
     }
 
+    /**
+     * Adds a new child FileEntity to this node.
+     *
+     * @param child the FileEntity to add as a child
+     * @return the newly created FileNode if the child was added successfully, otherwise null
+     */
     public FileNode pushChildren(FileEntity child) {
 
         if (this.data.getFileType() == FileTypes.PLAINTEXT)
@@ -52,6 +77,12 @@ public class FileNode implements Serializable {
         return nd;
     }
 
+    /**
+     * Adds an existing FileNode as a child of this node.
+     *
+     * @param child the FileNode to add as a child
+     * @return true if the child was added successfully, otherwise false
+     */
     public boolean pushChildren(FileNode child){
         if (this.data.getFileType() == FileTypes.PLAINTEXT)
             return false;
@@ -66,11 +97,10 @@ public class FileNode implements Serializable {
 
     /**
      * Deletes the subtree initiated by a given child of this node.
-     * @param subtreeRoot
+     * @param subtreeRoot the root of the subtree to delete
      */
     public void deleteSubtree(FileNode subtreeRoot) {
-
-        /**
+        /*
          * TODO: Handle the special case where the subtree is a folder/disk so
          * the user gets warned about deleting the entire contents of it.
          */
@@ -81,6 +111,11 @@ public class FileNode implements Serializable {
         children.delete(children.find(subtreeRoot));
     }
 
+    /**
+     * Returns the size of the subtree defined by this node.
+     *
+     * @return the size of the subtree
+     */
     public int subtreeSize() {
         return children.size();
     }

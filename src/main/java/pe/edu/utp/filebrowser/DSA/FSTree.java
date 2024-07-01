@@ -13,12 +13,16 @@ import pe.edu.utp.filebrowser.FileSystem.Path;
 
 /**
  * FileSystemTree
+ * Represents a file system tree structure with operations for managing files and directories.
  */
 public class FSTree implements Serializable {
 
     private FileNode root;
     private final HashMap<String, FileNode> lookupTable;
 
+    /**
+     * Constructs an empty file system tree with a root node representing "My PC".
+     */
     public FSTree() {
         root = new FileNode(
                 new RootItem("My PC", FileTypes.PC)
@@ -29,10 +33,21 @@ public class FSTree implements Serializable {
 
     // region [FILE MANIPULATION METHODS]
 
+    /**
+     * Returns the root node of the file system tree.
+     *
+     * @return the root FileNode
+     */
     public FileNode getRoot() {
         return root;
     }
 
+    /**
+     * Adds a new FileEntity to the file system tree.
+     *
+     * @param file the FileEntity to add
+     * @return true if the file was added successfully, otherwise false
+     */
     public boolean push(FileEntity file) {
         //FileNode parentNode = getNode(file.getDirectoryPath());
         FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
@@ -48,6 +63,11 @@ public class FSTree implements Serializable {
         return true;
     }
 
+    /**
+     * Removes a FileEntity and its subtree from the file system tree.
+     *
+     * @param file the FileEntity to remove
+     */
     public void remove(FileEntity file){
         FileNode parentNode = lookupTable.get(file.getDirectoryPath().toString());
         if(parentNode == null)
@@ -59,6 +79,12 @@ public class FSTree implements Serializable {
         removeLookupTable(childNode.getFile().getPath().toString());
     }
 
+    /**
+     * Removes and returns a FileNode from the file system tree.
+     *
+     * @param fe the FileEntity to remove
+     * @return the removed FileNode, or null if it was not found or not removed
+     */
     private FileNode pop(FileEntity fe){
         FileNode childNode = lookupTable.get(fe.getPath().toString());
         if(childNode == null) return null;
@@ -67,6 +93,13 @@ public class FSTree implements Serializable {
         return childNode;
     }
 
+    /**
+     * Moves a FileEntity to a new directory.
+     *
+     * @param fe the FileEntity to move
+     * @param dest the destination directory path
+     * @return true if the file was moved successfully, otherwise false
+     */
     public boolean move(FileEntity fe, Path dest){
         FileNode fn = lookupTable.get(fe.getPath().toString());
         FileNode oldParentNode = lookupTable.get(fe.getDirectoryPath().getPath());
@@ -90,6 +123,13 @@ public class FSTree implements Serializable {
         return true;
     }
 
+    /**
+     * Copies a FileEntity and its subtree to a new directory.
+     *
+     * @param fe the FileEntity to copy
+     * @param dest the destination directory path
+     * @return true if the file was copied successfully, otherwise false
+     */
     public boolean copy(FileEntity fe, Path dest){
         FileNode fn = lookupTable.get(fe.getPath().toString());
         if(fn == null) return false;
@@ -103,6 +143,12 @@ public class FSTree implements Serializable {
         return true;
     }
 
+    /**
+     * Recursively clones a subtree and inserts it into the specified parent node.
+     *
+     * @param fn the FileNode to clone
+     * @param parent the parent node to insert the cloned subtree into
+     */
     private void cloneSubtreeAndInsert(FileNode fn, FileNode parent){
         FileEntity clonedFileEntity = fn.getFile().deepCopy();
         clonedFileEntity.setFileEntityParent(parent.getFile());
@@ -120,6 +166,13 @@ public class FSTree implements Serializable {
 
     // region [NODE SEARCH METHODS]
 
+    /**
+     * Searches for a node by its name in a given branch.
+     *
+     * @param branch the branch to search within
+     * @param name the name of the node to search for
+     * @return the found FileNode, or null if not found
+     */
     private FileNode searchNode(FileNode branch, String name) {
         // This function needs to be analyzed and fixed
         FileNode node = lookupTable.get(name);
@@ -129,10 +182,23 @@ public class FSTree implements Serializable {
         return null;
     }
 
+    /**
+     * Retrieves a node by its directory path.
+     *
+     * @param directoryPath the path of the directory
+     * @return the FileNode at the specified path, or null if not found
+     */
     public FileNode getNode(Path directoryPath){
         return lookupTable.get(directoryPath.getPath());
     }
 
+    /**
+     * Recursively retrieves a node by its directory path.
+     *
+     * @param directoryPath the path of the directory
+     * @param branch the branch to start the search from
+     * @return the FileNode at the specified path, or null if not found
+     */
     private FileNode getNodeRecursively(Path directoryPath, FileNode branch){
         Path dp;
 
@@ -157,10 +223,14 @@ public class FSTree implements Serializable {
 
     // region [FILE ENTITY RETRIEVAL METHODS]
 
+    /**
+     * Retrieves the child FileEntities of a specified FileEntity.
+     *
+     * @param file the FileEntity to get children for
+     * @return an array of child FileEntities, or null if the parent node was not found
+     */
     public FileEntity[] getChildFilesEntities(FileEntity file){
-        //FileNode parentNode = getNode(file.getDirectoryPath());
         FileNode parentNode = lookupTable.get(file.getPath().toString());
-        // if(parentNode instanceof PlainText) return;
         if(parentNode == null) return null;
         int i = 0;
         FileEntity[] fileEntities = new FileEntity[parentNode.subtreeSize()];
@@ -168,10 +238,14 @@ public class FSTree implements Serializable {
         return fileEntities;
     }
 
+    /**
+     * Retrieves the FileEntities in a specified directory.
+     *
+     * @param directoryPath the path of the directory
+     * @return an array of FileEntities in the directory, or null if the directory node was not found
+     */
     public FileEntity[] getFilesEntitiesInDirectory(Path directoryPath){
-        //FileNode parentNode = getNode(directoryPath);
         FileNode parentNode = lookupTable.get(directoryPath.getPath());
-        // if(parentNode instanceof PlainText) return;
         if(parentNode == null) return null;
         int i = 0;
         FileEntity[] fileEntities = new FileEntity[parentNode.subtreeSize()];
@@ -180,8 +254,13 @@ public class FSTree implements Serializable {
         return fileEntities;
     }
 
+    /**
+     * Retrieves a FileEntity by its path.
+     *
+     * @param path the path of the FileEntity
+     * @return the FileEntity at the specified path, or null if not found
+     */
     public FileEntity getFileEntityByPath(Path path){
-        //FileNode node = getNode(path);
         FileNode node = lookupTable.get(path.getPath());
         if(node == null) return null;
         return node.getFile();
@@ -191,6 +270,12 @@ public class FSTree implements Serializable {
 
     // region [FILE ENTITY UPDATE METHODS]
 
+    /**
+     * Updates the name of a specified FileEntity.
+     *
+     * @param fe the FileEntity to rename
+     * @param newName the new name of the FileEntity
+     */
     public void updateFilename(FileEntity fe, String newName) {
         FileNode nd = lookupTable.get(fe.getPath().toString());
         String oldNamePath = fe.getPath().toString();
@@ -199,29 +284,49 @@ public class FSTree implements Serializable {
         updateLookupTable(oldNamePath);
     }
 
-    private void updateLookupTable(String pathOld){
-        Predicate<String> condition = createPathMatchingPredicate(pathOld);
+    /**
+     * Updates the entries in the lookup table based on a specified old path.
+     *
+     * @param oldPath the old path to match and update
+     */
+    private void updateLookupTable(String oldPath){
+        Predicate<String> condition = createPathMatchingPredicate(oldPath);
         KeyUpdater<String, FileNode> updater = (_, value) -> value.getFile().getPath().toString();
         lookupTable.update(condition, updater);
     }
 
-    private void removeLookupTable(String pathOld){
-        Predicate<String> condition = createPathMatchingPredicate(pathOld);
+    /**
+     * Removes entries from the lookup table based on a specified old path.
+     *
+     * @param oldPath the old path to match and remove
+     */
+    private void removeLookupTable(String oldPath){
+        Predicate<String> condition = createPathMatchingPredicate(oldPath);
         lookupTable.remove(condition);
     }
 
-    private Predicate<String> createPathMatchingPredicate(String pathOld){
-        String escapedPathOld = Pattern.quote(pathOld);
-        String regex = "^" + escapedPathOld + "("+Path.separatorToUseRgx+".*)?$";
+    /**
+     * Creates a predicate that matches keys in the lookup table based on a specified old path.
+     *
+     * @param oldPath the old path to match
+     * @return a predicate matching keys in the lookup table
+     */
+    private Predicate<String> createPathMatchingPredicate(String oldPath){
+        String escapedOldPath = Pattern.quote(oldPath);
+        String regex = "^" + escapedOldPath + "("+Path.separatorToUseRgx+".*)?$";
         return key -> key.matches(regex);
     }
-
-
 
     // endregion
 
     // region [TRAVERSAL METHODS]
 
+    /**
+     * Performs a depth-first traversal of the file system tree, invoking a consumer for each node.
+     *
+     * @param fileNodeConsumer the consumer to invoke for each FileNode
+     * @param current FileNode current
+     */
     private void depthFirst(Consumer<FileNode> fileNodeConsumer, FileNode current) {
         if (current.getChildren().size() == 0)
             return;
@@ -230,6 +335,11 @@ public class FSTree implements Serializable {
         fileNodeConsumer.accept(current);
     }
 
+    /**
+     * Performs a depth-first traversal of the file system tree, invoking a consumer for each node.
+     *
+     * @param fileNodeConsumer the consumer to invoke for each FileNode
+     */
     public void depthFirst(Consumer<FileNode> fileNodeConsumer) {
         depthFirst(fileNodeConsumer, root);
     }

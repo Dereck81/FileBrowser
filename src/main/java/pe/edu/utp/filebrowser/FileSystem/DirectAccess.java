@@ -4,7 +4,9 @@ import java.io.Serializable;
 import pe.edu.utp.filebrowser.Enums.FileTypes;
 import java.time.LocalDateTime;
 
-
+/**
+ * Represents a direct access or shortcut to another FileEntity.
+ */
 public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity targetFile;
 
@@ -77,15 +79,9 @@ public class DirectAccess extends FileEntity implements Serializable {
         setModificationDate();
     }
 
-    /**
-     * It is based on the Windows file manager,
-     * which only modifies the date when a file is added
-     * and not when its name or path is modified.
-     */
     private void setModificationDate() {
         super.setModificationDate(LocalDateTime.now());
     }
-
 
     public FileTypes getFileType() {
         return super.getFileType();

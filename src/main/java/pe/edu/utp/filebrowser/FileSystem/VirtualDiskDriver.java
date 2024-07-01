@@ -21,11 +21,6 @@ public class VirtualDiskDriver extends FileEntity implements Serializable {
         return super.getModificationDate();
     }
 
-    /**
-     * It is based on the Windows file manager,
-     * which only modifies the date when a file is added
-     * and not when its name or path is modified.
-     */
     public void setModificationDate() {
         super.setModificationDate(LocalDateTime.now());
     }

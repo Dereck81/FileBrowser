@@ -12,10 +12,6 @@ public class PlainText extends FileEntity implements Serializable {
 
     private String content = "";
 
-    //public PlainText(String fileName, Path filePath) {
-    //    super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
-    //}
-
     public PlainText(String fileName, FileEntity fileEntityParent) {
         super(fileName, FileTypes.PLAINTEXT, fileEntityParent, LocalDateTime.now());
     }

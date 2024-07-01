@@ -42,7 +42,7 @@ public class IO {
         File filelog = new File(_FILELOG_);
         ArrayList<String> content = IO.readRecordRecentFiles();
         if (content.size() > _CANTRECENTFILES_) {
-            content.remove(content.size()-1);
+            content.removeLast();
         }
 
         try(FileWriter fileW = new FileWriter(filelog)){
@@ -69,6 +69,14 @@ public class IO {
         }
     }
 
+    /**
+     * Saves content to a file at the specified path.
+     *
+     * @param content   The content to write to the file.
+     * @param filePath  The path of the file where the content will be saved.
+     * @param showAlert Indicates whether to show an alert message upon completion.
+     * @throws Exception If an error occurs during file writing.
+     */
     public static void saveData(String content, String filePath, boolean showAlert) throws Exception{
         try(FileWriter fileW = new FileWriter(filePath)){
             fileW.write(content);

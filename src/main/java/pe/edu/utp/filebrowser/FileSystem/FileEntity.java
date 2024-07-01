@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Represents a generic file system entity.
+ */
 public class FileEntity implements Comparable<FileEntity>, Serializable {
 
     private FileEntity fileEntityParent;
@@ -102,7 +105,6 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
      * which only modifies the date when a file is added
      * and not when its name or path is modified.
      */
-
     void setModificationDate(LocalDateTime modificationDate) {
         this.modificationDate = modificationDate;
     }
@@ -115,6 +117,11 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         return 0;
     }
 
+    /**
+     * Retrieves an ImageView representing the icon of this file entity.
+     *
+     * @return An ImageView representing the icon of this file entity.
+     */
     public ImageView getImageView() {
         String PATH = switch (fileTypes) {
             case FOLDER -> "imgs/folder.png";
@@ -133,6 +140,11 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         return new ImageView(file.toURI().toString());
     }
 
+    /**
+     * Constructs a Pane displaying this file entity with an icon and name.
+     *
+     * @return A Pane displaying this file entity.
+     */
     public Pane getPane(){
         Pane pane = new Pane();
         ImageView imageView = getImageView();
@@ -148,6 +160,14 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         return pane;
     }
 
+    /**
+     * Compares this file entity with another file entity for ordering.
+     * File entities are ordered primarily by directory path and then by name.
+     *
+     * @param o The file entity to be compared.
+     * @return A negative integer, zero, or a positive integer as this file entity
+     *           is less than, equal to, or greater than the specified file entity.
+     */
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
     @Override
     public int compareTo(FileEntity o) {
@@ -169,18 +189,23 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         return -1;
     }
 
+    /**
+     * Creates a deep copy of this file entity.
+     *
+     * @return A deep copy of this file entity.
+     */
     public FileEntity deepCopy(){
         switch (this) {
-            case VirtualDiskDriver virtualDiskDriver -> {
+            case VirtualDiskDriver _ -> {
                 return new VirtualDiskDriver(name, directoryPath, modificationDate, creationDate);
             }
-            case Folder folder -> {
+            case Folder _ -> {
                 return new Folder(name, fileEntityParent, modificationDate, creationDate);
             }
             case PlainText plainText -> {
                 return new PlainText(name, fileEntityParent, plainText.getContent(), modificationDate, creationDate);
             }
-            case DirectAccess directAccess -> {
+            case DirectAccess _ -> {
                 if (fileEntityParent == null)
                     return new DirectAccess(name, directoryPath, ((DirectAccess) this).getTargetFile(),
                             modificationDate, creationDate);
@@ -191,8 +216,7 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
             case RootItem rootItem -> {
                 return new RootItem(name, rootItem.getFileTypes(), modificationDate, creationDate);
             }
-            default -> {
-            }
+            default -> {}
         }
         if(fileEntityParent == null)
             return new FileEntity(name, fileTypes, directoryPath, modificationDate, creationDate);

@@ -9,6 +9,10 @@ import pe.edu.utp.filebrowser.FileBrowser;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Global exception handler for JavaFX applications.
+ * Handles uncaught exceptions and displays corresponding alerts.
+ */
 public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     /**
@@ -28,32 +32,59 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
         );
     }
 
-    /*
-       Here a loop was placed that will go through all the wrappers
-       of the original cause, this is mostly because when an exception
-       is raised in the application, it wraps that exception in several
-       exceptions like InvocationTargetException and Runtime, and in order
-       to get the final cause, we would have to go through all the causes
-       to get to the original.
-    */
+    /**
+     * Recursively finds the final cause of an exception.
+     *
+     * @param e the exception to find the final cause for
+     * @return the final cause of the exception
+     */
     private static Throwable getFinalCause(Throwable e) {
         if(e.getCause() == null) return e;
         return getFinalCause(e.getCause());
     }
 
+    /**
+     * Displays an information alert.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     */
     public static void alertInformation(String title, String header, String contextText){
         alert(title, header, contextText, Alert.AlertType.INFORMATION);
     }
 
+    /**
+     * Displays an error alert.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     */
     public static void alertError(String title, String header, String contextText){
         alert(title, header, contextText, Alert.AlertType.ERROR);
 
     }
 
+    /**
+     * Displays a warning alert.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     */
     public static void alertWarning(String title, String header, String contextText){
         alert(title, header, contextText, Alert.AlertType.WARNING);
     }
 
+    /**
+     * Displays a confirmation alert with Yes, No, and Cancel options.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     * @return the user's chosen ConfirmationOptions (YES, NO, or CANCEL)
+     */
     public static ConfirmationOptions alertConfirmation(String title, String header, String contextText){
         ButtonType yes = new ButtonType("Yes"); // true
         ButtonType no = new ButtonType("No"); // false
@@ -72,11 +103,28 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
         return confirmationOption.get();
     }
 
+    /**
+     * Helper method to create and display an alert.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     * @param at          the type of the alert (INFORMATION, ERROR, WARNING, CONFIRMATION)
+     */
     private static void alert(String title, String header, String contextText, Alert.AlertType at){
         Alert alert = getAlert(title, header, contextText, at);
         alert.showAndWait();
     }
 
+    /**
+     * Creates an Alert instance with specified properties.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     * @param at          the type of the alert (INFORMATION, ERROR, WARNING, CONFIRMATION)
+     * @return the configured Alert instance
+     */
     private static Alert getAlert(String title, String header, String contextText, Alert.AlertType at){
         Alert alert = new Alert(at);
         alert.getDialogPane().getStylesheets()

@@ -9,10 +9,14 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+/**
+ * Handles uncaught exceptions by displaying native Windows message boxes for error, information, and warning alerts.
+ */
 public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     // Unused Class
 
+    // Constants for MessageBox options
     public static final int MB_OK = 0x0;
     public static final int MB_OKCANCEL = 0x1;
     public static final int MB_YESNO = 0x4;
@@ -32,18 +36,31 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
     public static final int IDYES = 6;
     public static final int IDNO = 7;
 
-
+    /**
+     * Interface to interact with user32.dll for displaying MessageBox on Windows.
+     */
     public interface User32 extends StdCallLibrary {
         User32 INSTANCE = Native.load("user32", User32.class);
         int MessageBoxW(WinDef.HWND hWnd, WString text, WString caption, int uType);
     }
 
+    /**
+     * Handles uncaught exceptions by showing an error message box with the final cause message.
+     *
+     * @param t the thread where the exception occurred
+     * @param e the exception that was thrown
+     */
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         Throwable finalCause = getFinalCause(e);
         Platform.runLater(() -> alertError("Error", finalCause.getMessage()));
     }
 
+    /**
+     * Retrieves the native handle of the main window.
+     *
+     * @return the HWND of the main window
+     */
     private static WinDef.HWND getMainWindowHandle() {
         long hwnd = com.sun.glass.ui.Window.getWindows().stream()
                 .filter(window -> window.getView() != null)
@@ -53,6 +70,11 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
         return new WinDef.HWND(new Pointer(hwnd));
     }
 
+    /**
+     * Retrieves the primary stage of the JavaFX application.
+     *
+     * @return the primary Stage object
+     */
     private static Stage getPrimaryStage() {
         for (Window window : Stage.getWindows()) {
             if (window instanceof Stage) {
@@ -62,6 +84,12 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
         return null;
     }
 
+    /**
+     * Displays an error message box with the specified title and context text.
+     *
+     * @param title       the title of the message box
+     * @param contextText the content text of the message box
+     */
     public static void alertError(String title, String contextText){
         User32.INSTANCE.MessageBoxW(
                         null,
@@ -71,11 +99,23 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
                         );
     }
 
+    /**
+     * Recursively retrieves the final cause of an exception.
+     *
+     * @param e the initial exception
+     * @return the final cause of the exception
+     */
     private static Throwable getFinalCause(Throwable e) {
         if(e.getCause() == null) return e;
         return getFinalCause(e.getCause());
     }
 
+    /**
+     * Displays an information message box with the specified title and context text.
+     *
+     * @param title       the title of the message box
+     * @param contextText the content text of the message box
+     */
     public static void alertInformation(String title, String contextText){
         User32.INSTANCE.MessageBoxW(
                 null,
@@ -85,6 +125,12 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
         );
     }
 
+    /**
+     * Displays a warning message box with the specified title and context text.
+     *
+     * @param title       the title of the message box
+     * @param contextText the content text of the message box
+     */
     public static void alertWarning(String title, String contextText){
         User32.INSTANCE.MessageBoxW(
                 null,
@@ -93,7 +139,4 @@ public class WindowsGlobalExceptionHandler implements Thread.UncaughtExceptionHa
                 MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL | MB_APPMODAL
         );
     }
-
-
-
 }

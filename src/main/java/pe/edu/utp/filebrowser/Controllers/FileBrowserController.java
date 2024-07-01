@@ -1,7 +1,6 @@
 package pe.edu.utp.filebrowser.Controllers;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,7 +15,6 @@ import pe.edu.utp.filebrowser.DSA.*;
 import pe.edu.utp.filebrowser.FileBrowser;
 import pe.edu.utp.filebrowser.FileSystem.*;
 import pe.edu.utp.filebrowser.IO.IO;
-import pe.edu.utp.filebrowser.IO.ObjectSerializationUtil;
 import pe.edu.utp.filebrowser.IO.SystemElementCreator;
 import pe.edu.utp.filebrowser.OS.OSUtils;
 import pe.edu.utp.filebrowser.TreeAndTable.CellFactory;
@@ -90,7 +88,7 @@ public class FileBrowserController {
 
     // Buttons
     @FXML
-    private Button buttonBackwardPath, buttonForwardPath, buttonClearSearch;
+    private Button buttonBackwardPath, buttonForwardPath, buttonClearSearch, buttonUpDirectory;
 
     // JavaFX element's without @FXML tag
     // JavaFX ContextMenus
@@ -857,6 +855,9 @@ public class FileBrowserController {
 
         tableView.getItems().clear();
         tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+
+        buttonUpDirectory.setDisable(pathIsSelected.equals(rootPath));
+
     }
 
     @FXML
@@ -865,6 +866,13 @@ public class FileBrowserController {
         Path path = new Path(generateValidPath(inputPath));
         if(Objects.equals(path, BackwardPathStack.peek())) backwardPath();
         else goToDirectory(path);
+    }
+
+    @FXML
+    private void navigateUpDirectory(){
+        buttonUpDirectory.setDisable(pathIsSelected.equals(rootPath));
+        if(pathIsSelected.equals(rootPath)) return;
+        goToDirectory(pathIsSelected.getParent());
     }
 
     @FXML
@@ -878,6 +886,7 @@ public class FileBrowserController {
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
         tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+        buttonUpDirectory.setDisable(pathIsSelected.equals(rootPath));
     }
 
     @FXML
@@ -891,6 +900,7 @@ public class FileBrowserController {
         textField_inputPath.setText(generateValidPath(pathIsSelected.toString()));
         tableView.getItems().clear();
         tableView.getItems().addAll(fileFSTree.getFilesEntitiesInDirectory(pathIsSelected));
+        buttonUpDirectory.setDisable(pathIsSelected.equals(rootPath));
     }
 
     private String generateValidPath(String path) {
@@ -996,6 +1006,7 @@ public class FileBrowserController {
         buttonForwardPath.setDisable(true);
         buttonClearSearch.setDisable(false);
         textField_inputPath.setDisable(true);
+        buttonUpDirectory.setDisable(true);
     }
 
     @FXML
@@ -1007,6 +1018,7 @@ public class FileBrowserController {
         buttonBackwardPath.setDisable(false);
         buttonClearSearch.setDisable(true);
         textField_inputPath.setDisable(false);
+        buttonUpDirectory.setDisable(false);
     }
 
     // endregion
@@ -1075,6 +1087,29 @@ public class FileBrowserController {
     }
 
     private void resetApplication(){
+        ForwardPathStack.clear();
+        BackwardPathStack.clear();
+        fileTransferStack.clear();
+
+        textField_search.clear();
+        textField_inputPath.clear();
+
+        fileAssignmentTable.clear();
+        fileFSTree.clear();
+
+        rootItemMP.getChildren().clear();
+        rootItemDA.getChildren().clear();
+
+        tableView.getItems().clear();
+
+        buttonForwardPath.setDisable(true);
+        buttonBackwardPath.setDisable(true);
+        buttonClearSearch.setDisable(true);
+        buttonUpDirectory.setDisable(true);
+
+
+        goToDirectory(rootPath);
+        resetInformationPane();
 
     }
 

@@ -94,6 +94,18 @@ public class FSTree implements Serializable {
     }
 
     /**
+     * Clears the file system tree by resetting the root node and optionally clearing the lookup table.
+     * The root node is set to a new instance of FileNode representing "My PC".
+     * If a lookup table is present, it is cleared to remove all stored mappings.
+     */
+    public void clear(){
+        root = new FileNode(
+                new RootItem("My PC", FileTypes.PC)
+        );
+        if(lookupTable != null) lookupTable.clear();
+    }
+
+    /**
      * Moves a FileEntity to a new directory.
      *
      * @param fe the FileEntity to move

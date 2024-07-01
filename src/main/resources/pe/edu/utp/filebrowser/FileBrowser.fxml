@@ -99,7 +99,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="buttonBackwardPath1" disable="true" layoutX="99.0" layoutY="8.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="45.0" style="-fx-background-color: transparent;" text="🡹" textFill="#009bfc">
+                        <Button fx:id="buttonUpDirectory" disable="true" layoutX="99.0" layoutY="8.0" mnemonicParsing="false" onAction="#navigateUpDirectory" prefHeight="39.0" prefWidth="45.0" style="-fx-background-color: transparent;" text="🡹" textFill="#009bfc">
                            <font>
                               <Font size="18.0" />
                            </font>

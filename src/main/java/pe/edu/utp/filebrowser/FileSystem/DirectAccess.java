@@ -1,11 +1,12 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
 import java.io.Serializable;
-import pe.edu.utp.filebrowser.FileSystem.Path;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
 import java.time.LocalDateTime;
 
-import javafx.scene.layout.Pane;
-
+/**
+ * Represents a direct access or shortcut to another FileEntity.
+ */
 public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity targetFile;
 
@@ -18,20 +19,34 @@ public class DirectAccess extends FileEntity implements Serializable {
 
     }
 
-    public String getName() {
-        return super.getName();
+    public DirectAccess(String shorcutName, Path shortcutPath,
+                        FileEntity targetFile, LocalDateTime modificationDate, LocalDateTime creationDate) {
+
+        super(shorcutName, targetFile.getFileType(), shortcutPath, modificationDate, creationDate);
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
+
     }
 
-    public void setName(String name) {
-        super.setName(name);
+    public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile) {
+        super(shortcutName, targetFile.getFileType(), fileEntityParent, LocalDateTime.now());
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
+    }
+
+    public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile,
+                        LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(shortcutName, targetFile.getFileType(), fileEntityParent, modificationDate, creationDate);
+        this.targetFile = targetFile;
+        super.setFileType(getFileTypeTarget());
     }
 
     public Path getShortcutPath() {
         return getShortCutPathTarget(); // ???
     }
 
-    public void setShortcutDirectoryPath(Path shortcutPath) {
-        super.setDirectoryPath(shortcutPath);
+    public void setShortcutFileParent(FileEntity fileEntityParent) {
+        super.setFileEntityParent(fileEntityParent);
     }
 
     public Path getShortcutDirectoryPath(){
@@ -64,19 +79,9 @@ public class DirectAccess extends FileEntity implements Serializable {
         setModificationDate();
     }
 
-    public LocalDateTime getModificationDate(){
-        return super.getModificationDate();
-    }
-
-    /**
-     * It is based on the Windows file manager,
-     * which only modifies the date when a file is added
-     * and not when its name or path is modified.
-     */
     private void setModificationDate() {
         super.setModificationDate(LocalDateTime.now());
     }
-
 
     public FileTypes getFileType() {
         return super.getFileType();
@@ -94,11 +99,6 @@ public class DirectAccess extends FileEntity implements Serializable {
     private FileEntity getFinalTargetFile(FileEntity feTarget){
         if(!(feTarget instanceof DirectAccess)) return feTarget;
         return getFinalTargetFile((((DirectAccess) feTarget).getTargetFile()));
-    }
-
-
-    public Pane getPane(){
-        return super.getPane();
     }
 
 }

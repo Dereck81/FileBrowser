@@ -6,8 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import pe.edu.utp.filebrowser.Controllers.FileBrowserController;
-import pe.edu.utp.filebrowser.Utilites.GlobalExceptionHandler;
-import pe.edu.utp.filebrowser.Utilites.Section;
+import pe.edu.utp.filebrowser.Enums.Section;
+import pe.edu.utp.filebrowser.Utilites.JavaFXGlobalExceptionHandler;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class FileBrowser extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        //Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
+        Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
         FXMLLoader fxmlLoader = new FXMLLoader(FileBrowser.class.getResource("FileBrowser.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1077, 620);
         FileBrowserController controller = fxmlLoader.getController();
@@ -25,6 +25,7 @@ public class FileBrowser extends Application {
             if(keyEvent.getCode().getName().equalsIgnoreCase("ESC")) {
                 controller.deselectListCell(Section.ALL);
             }
+            //System.out.println(keyEvent.getCode().getName());
         });
         stage.setOnCloseRequest(_ -> controller.quit());
         stage.setTitle("File Browser");

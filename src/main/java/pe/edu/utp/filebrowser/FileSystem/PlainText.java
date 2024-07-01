@@ -2,49 +2,34 @@ package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.layout.Pane;
 
-import java.io.Serial;
 import java.io.Serializable;
-import pe.edu.utp.filebrowser.FileSystem.Path;
+
+import pe.edu.utp.filebrowser.Enums.FileTypes;
+
 import java.time.LocalDateTime;
 
 public class PlainText extends FileEntity implements Serializable {
 
-    private StringBuilder content = new StringBuilder();
+    private String content = "";
 
-    public PlainText(String fileName, Path filePath) {
-        super(fileName, FileTypes.PLAINTEXT, filePath, LocalDateTime.now());
+    public PlainText(String fileName, FileEntity fileEntityParent) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, LocalDateTime.now());
     }
 
-    public String getName() {
-        return super.getName();
+    public PlainText(String fileName, FileEntity fileEntityParent,
+                     LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, modificationDate, creationDate);
     }
 
-    public void setName(String name) {
-        super.setName(name);
+    public PlainText(String fileName, FileEntity fileEntityParent, String content,
+                     LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(fileName, FileTypes.PLAINTEXT, fileEntityParent, modificationDate, creationDate);
+        this.content = content;
     }
 
-    public Path getDirectoryPath(){
-        return super.getDirectoryPath();
-    }
-
-    public Path getPath(){
-        return super.getPath();
-    }
-
-    public void setDirectoryPath(Path directoryPath){
-        super.setDirectoryPath(directoryPath);
-    }
 
     public int getSize(){
-        return content.toString().getBytes().length;
-    }
-
-    public FileTypes getFileType() {
-        return super.getFileType();
-    }
-
-    public LocalDateTime getModificationDate() {
-        return super.getModificationDate();
+        return content.getBytes().length;
     }
 
     private void setModificationDate() {
@@ -52,16 +37,13 @@ public class PlainText extends FileEntity implements Serializable {
     }
 
     public void setContent(String content){
-        this.content.append(content);
+        this.content = content;
         setModificationDate();
     }
 
     public String getContent(){
-        return content.toString();
+        return content;
     }
 
-    public Pane getPane(){
-        return super.getPane();
-    }
 
 }

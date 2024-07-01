@@ -4,8 +4,17 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TreeCell;
 import pe.edu.utp.filebrowser.FileSystem.*;
 
+/**
+ * CellFactory
+ * Provides cell factories for JavaFX tree and table views to display FileEntity items.
+ */
 public class CellFactory {
 
+    /**
+     * Sets a custom cell factory for a TreeView of FileEntity items.
+     *
+     * @return A TreeCell configured with custom rendering based on the type of FileEntity.
+     */
     public static TreeCell<FileEntity> setCellFactoryTree() {
         return new TreeCell<>() {
             @Override
@@ -15,21 +24,26 @@ public class CellFactory {
                 if (empty || item == null)
                     setGraphic(null);
                 else
-                    // Set a custom graphic based on the type of the element
                     if (item instanceof RootItem)
-                        setGraphic(((RootItem) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof PlainText)
-                        setGraphic(((PlainText) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof Folder)
-                        setGraphic(((Folder) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof VirtualDiskDriver)
-                        setGraphic(((VirtualDiskDriver) item).getPane());
+                        setGraphic(item.getPane());
                     else if (item instanceof DirectAccess)
-                        setGraphic(((DirectAccess) item).getPane());
+                        setGraphic(item.getPane());
                 }
         };
     }
 
+    /**
+     * Sets a custom cell factory for a TableView of FileEntity items.
+     *
+     * @param <T> The type of data in the TableCell.
+     * @return A TableCell configured with custom rendering based on the type of FileEntity.
+     */
     public static <T> TableCell<FileEntity, T> setCellFactoryTable() {
         return new TableCell<>() {
             @Override
@@ -40,7 +54,6 @@ public class CellFactory {
                     setGraphic(null);
                     setText(null);
                 }else
-                    // Set a custom graphic based on the type of the element
                     if (item instanceof PlainText)
                         setGraphic(((PlainText) item).getPane());
                     else if (item instanceof Folder)

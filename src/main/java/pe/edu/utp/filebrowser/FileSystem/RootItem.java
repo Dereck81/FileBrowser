@@ -1,15 +1,14 @@
-package pe.edu.utp.filebrowser.TreeAndTable;
+package pe.edu.utp.filebrowser.FileSystem;
 
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileBrowser;
-import pe.edu.utp.filebrowser.FileSystem.FileEntity;
-import pe.edu.utp.filebrowser.FileSystem.FileTypes;
-import pe.edu.utp.filebrowser.FileSystem.Path;
 
 import java.io.File;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class RootItem extends FileEntity implements Serializable {
@@ -22,6 +21,16 @@ public class RootItem extends FileEntity implements Serializable {
         this.fileType = fileType;
     }
 
+    public RootItem(String name, FileTypes fileType,
+                    LocalDateTime modificationDate, LocalDateTime creationDate) {
+        super(null, null, new Path(Path.separatorToUse), modificationDate, creationDate);
+        this.name = name;
+        this.fileType = fileType;
+    }
+
+    public FileTypes getFileTypes(){
+        return this.fileType;
+    }
 
     public Pane getPane(){
         String path = null;

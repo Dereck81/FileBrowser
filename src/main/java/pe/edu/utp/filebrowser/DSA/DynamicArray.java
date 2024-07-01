@@ -130,10 +130,15 @@ public class DynamicArray<T> implements Iterable<T>, Serializable {
 		return copy;
 	}
 
-	/*
-	There may be elements that have not been deleted during the copy,
-	but this is not taken into account since adding another element
-	will overwrite it.
+	/**
+	 * Deletes the element at the specified index from the array.
+	 * There may be elements that have not been deleted during the copy,
+	 * but this is not taken into account since adding another element
+	 * will overwrite it.
+	 *
+	 * @param index the index of the element to be deleted.
+	 *
+	 * @throws IndexOutOfBoundsException if the specified index is out of range (index < 0 || index >= size).
 	 */
 	public void delete(int index) {
 		if(index < 0 || index >= size) return;
@@ -142,6 +147,14 @@ public class DynamicArray<T> implements Iterable<T>, Serializable {
 		size--;
 	}
 
+	/**
+	 * Finds the index of the specified element in the array.
+	 *
+	 * @param x the element to be searched for in the array.
+	 * @return the index of the specified element if it is found; otherwise, -1.
+	 *
+	 * @throws NullPointerException if the specified element is null.
+	 */
 	public int find(T x) {
 		for (int i = 0; i < size; i++) {
 			if (x.equals(arr[i]))
@@ -149,4 +162,21 @@ public class DynamicArray<T> implements Iterable<T>, Serializable {
 		}
 		return -1;
 	}
+
+	/**
+	 * Converts the internal storage array to a new array of the same type containing only the elements in use.
+	 *
+	 * @return a new array containing all the elements in this collection.
+	 *
+	 * @throws ArrayStoreException if the runtime type of the specified array is not a supertype of the runtime type of every element in this collection
+	 * @throws NullPointerException if the specified array is null
+	 */
+	@SuppressWarnings("unchecked")
+	public T[] toArray(){
+		T[] newArr = (T[]) new Object[size];
+		System.arraycopy(arr, 0, newArr, 0, size);
+		return newArr;
+	}
+
+
 }

@@ -61,17 +61,11 @@
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#closeFile" text="Close" />
             <MenuItem mnemonicParsing="false" onAction="#saveFile" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#quit" text="Quit" />
           </items>
         </Menu>
-            <Menu mnemonicParsing="false" text="Home">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#test" text="Test Application" />
-              </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Actions">
+            <Menu fx:id="menuActions" mnemonicParsing="false" text="Actions">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#createVirtualDisk" text="Create a new virtual disk" />
                   <MenuItem mnemonicParsing="false" onAction="#createFolder" text="Create a new folder " />
@@ -88,8 +82,8 @@
                <children>
                   <Pane prefHeight="57.0">
                      <children>
-                        <TextField fx:id="textField_search" layoutX="836.0" layoutY="15.0" onAction="#search" prefHeight="25.0" prefWidth="228.0" promptText="Search..." />
-                        <TextField fx:id="textField_inputPath" layoutX="152.0" layoutY="15.0" onAction="#navigateToDirectory" prefHeight="25.0" prefWidth="664.0" promptText="Path..." />
+                        <TextField fx:id="textField_search" layoutX="750.0" layoutY="15.0" onAction="#search" prefHeight="25.0" prefWidth="273.0" promptText="Search..." />
+                        <TextField fx:id="textField_inputPath" layoutX="152.0" layoutY="15.0" onAction="#navigateToDirectory" prefHeight="25.0" prefWidth="569.0" promptText="Path..." />
                         <Button fx:id="buttonBackwardPath" disable="true" layoutX="9.0" layoutY="8.0" mnemonicParsing="false" onAction="#backwardPath" prefHeight="39.0" prefWidth="45.0" style="-fx-background-color: transparent;" text="🡸" textFill="#009bfc">
                            <font>
                               <Font size="18.0" />
@@ -100,9 +94,14 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="buttonBackwardPath1" disable="true" layoutX="99.0" layoutY="8.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="45.0" style="-fx-background-color: transparent;" text="🡹" textFill="#009bfc">
+                        <Button fx:id="buttonUpDirectory" disable="true" layoutX="99.0" layoutY="8.0" mnemonicParsing="false" onAction="#navigateUpDirectory" prefHeight="39.0" prefWidth="45.0" style="-fx-background-color: transparent;" text="🡹" textFill="#009bfc">
                            <font>
                               <Font size="18.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonClearSearch" disable="true" layoutX="1027.0" layoutY="9.0" mnemonicParsing="false" onAction="#clearSearch" prefHeight="39.0" prefWidth="38.0" style="-fx-background-color: transparent;" text=" ❌" textFill="#fc0000">
+                           <font>
+                              <Font size="13.0" />
                            </font>
                         </Button>
                      </children>

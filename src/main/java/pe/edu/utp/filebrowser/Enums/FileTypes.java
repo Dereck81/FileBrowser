@@ -1,4 +1,4 @@
-package pe.edu.utp.filebrowser.FileSystem;
+package pe.edu.utp.filebrowser.Enums;
 
 public enum FileTypes {
     FOLDER,
@@ -9,4 +9,5 @@ public enum FileTypes {
     DIRECTACCESS_PLAINTEXT,
     DIRECTACCESS_FOLDER,
     DIRECTACCESS_VIRTUALDISK,
+    UNKOWN
 }

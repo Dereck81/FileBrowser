@@ -1169,8 +1169,17 @@ public class FileBrowserController {
 
         if(target.isEmpty() || target.isBlank()) return;
 
-        String regex = "^.*("+Path.separatorToUseRgx+")"+target+"$";
-        Predicate<Path> condition = key -> key.getPath().matches(regex);
+        // Line for exact matches
+        //String regex = "^.*("+Path.separatorToUseRgx+")"+target+"$";
+        //Predicate<Path> condition = key -> key.getPath().matches(regex);
+
+        // Line for partial matches
+        Predicate<Path> condition = key -> {
+            int idx = key.getPath().lastIndexOf(Path.separatorToUse);
+
+            return key.getPath().substring(idx+1)
+                    .toLowerCase().contains(target.toLowerCase());
+        };
 
         Object[] keys = fileAssignmentTable.getKeys(condition);
         tableView.getItems().clear();

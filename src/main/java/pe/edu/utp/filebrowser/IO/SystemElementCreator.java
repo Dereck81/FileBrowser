@@ -16,7 +16,13 @@ public class SystemElementCreator {
      * @throws Exception If an error occurs during file or directory creation.
      */
     public static void createFileSystemStructure(FileNode root, String dest) throws Exception {
-        Path target = Path.of(dest, root.getFile().getName());
+        Path target;
+        FileEntity fe = root.getFile();
+
+        if(fe instanceof RootItem)
+            target = Path.of(dest, root.getFile().getPath().toString());
+        else
+            target = Path.of(dest, root.getFile().getName());
 
         if(root.getFile() instanceof VirtualDiskDriver || root.getFile() instanceof Folder)
             try {Files.createDirectory(target);} catch (Exception _){}

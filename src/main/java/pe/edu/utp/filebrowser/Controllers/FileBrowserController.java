@@ -233,12 +233,6 @@ public class FileBrowserController {
 
             if (fe == null) return;
 
-            try {
-                convertToPhysicalDirectory(fileFSTree.getNode(fe.getPath()));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
             createShortCut();
         });
 
@@ -255,7 +249,7 @@ public class FileBrowserController {
             }
         });
 
-        contextMenuTableV.getItems().setAll(createShortCutTableV, editNameTableV, copyPathTableV, createFileDirectoryHardDiskV, copy, cut, delete);
+        contextMenuTableV.getItems().setAll(createShortCutTableV, createFileDirectoryHardDiskV, editNameTableV, copyPathTableV, copy, cut, delete);
         contextMenuFO.getItems().setAll(createDiskMI, createFolderMI, createPlainTextMI, paste);
         contextMenuTreeDA.getItems().setAll(editNameTreeDA, copyPathTreeDA);
         contextMenuTreeMP.getItems().setAll(editNameTreeMP, copyPathTreeMP);
@@ -263,6 +257,7 @@ public class FileBrowserController {
 
     private void setupTableView() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
         tableColumnName.setCellFactory(_ -> CellFactory.setCellFactoryTable());
         tableColumnModDate.setCellFactory(_ -> CellFactory.setCellFactoryTable());
         tableColumnType.setCellFactory(_ -> CellFactory.setCellFactoryTable());
@@ -1308,7 +1303,6 @@ public class FileBrowserController {
         pathIsSelected = rootPath;
 
         resetInformationPane();
-
     }
 
     public void deselectListCell(Section...sections) {

@@ -3,6 +3,7 @@ package pe.edu.utp.filebrowser.DSA;
 import pe.edu.utp.filebrowser.FileSystem.FileEntity;
 import pe.edu.utp.filebrowser.Enums.FileTypes;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -10,6 +11,9 @@ import java.io.Serializable;
  * Each node contains a FileEntity and a list of children nodes.
  */
 public class FileNode implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 5030174569902236442L;
     FileEntity data;
     DynamicArray<FileNode> children;
 

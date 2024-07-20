@@ -24,9 +24,11 @@ public class OSUtils {
      */
     public static OSType getOperatingSystem(){
         String osName = getOperatingSystemName().toLowerCase();
+
         if(osName.contains("windows")) return OSType.WINDOWS;
         else if(osName.contains("linux")) return OSType.LINUX;
         else if(osName.contains("mac")) return OSType.MAC;
+
         return null;
     }
 

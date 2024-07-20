@@ -1,5 +1,6 @@
 package pe.edu.utp.filebrowser.FileSystem;
 
+import java.io.Serial;
 import java.io.Serializable;
 import pe.edu.utp.filebrowser.Enums.FileTypes;
 import java.time.LocalDateTime;
@@ -8,6 +9,9 @@ import java.time.LocalDateTime;
  * Represents a direct access or shortcut to another FileEntity.
  */
 public class DirectAccess extends FileEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2702526546868198172L;
     private FileEntity targetFile;
 
     public DirectAccess(String shorcutName, Path shortcutPath,
@@ -16,7 +20,6 @@ public class DirectAccess extends FileEntity implements Serializable {
         super(shorcutName, targetFile.getFileType(), shortcutPath, LocalDateTime.now());
         this.targetFile = targetFile;
         super.setFileType(getFileTypeTarget());
-
     }
 
     public DirectAccess(String shorcutName, Path shortcutPath,
@@ -25,7 +28,6 @@ public class DirectAccess extends FileEntity implements Serializable {
         super(shorcutName, targetFile.getFileType(), shortcutPath, modificationDate, creationDate);
         this.targetFile = targetFile;
         super.setFileType(getFileTypeTarget());
-
     }
 
     public DirectAccess(String shortcutName, FileEntity fileEntityParent, FileEntity targetFile) {
@@ -62,9 +64,9 @@ public class DirectAccess extends FileEntity implements Serializable {
     }
 
     public int getSize(){
-        if (getTargetFile() instanceof PlainText){
+        if (getTargetFile() instanceof PlainText)
             return getTargetFile().getSize();
-        }else return 0;
+        else return 0;
     }
 
     /*
@@ -98,6 +100,7 @@ public class DirectAccess extends FileEntity implements Serializable {
 
     private FileEntity getFinalTargetFile(FileEntity feTarget){
         if(!(feTarget instanceof DirectAccess)) return feTarget;
+
         return getFinalTargetFile((((DirectAccess) feTarget).getTargetFile()));
     }
 

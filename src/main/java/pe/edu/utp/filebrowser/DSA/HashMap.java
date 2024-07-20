@@ -1,5 +1,6 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.function.Predicate;
@@ -13,6 +14,9 @@ import java.util.function.Predicate;
  * @param <V> the type of values associated with the keys
  */
 public class HashMap<K, V> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1633468994188749630L;
     private final Integer DEFAULT_CAPACITY = 40;
     private final DynamicArray<K> generalKeys = new DynamicArray<>();
     private int size = 0;
@@ -81,7 +85,9 @@ public class HashMap<K, V> implements Serializable {
         @SuppressWarnings("unchecked")
         public void removeKeyValuePair(K1 key){
             int idx = find(key);
+
             if (idx == -1) return;
+
             bucket_kvps.delete(idx);
             generalKeys.delete(generalKeys.find((K) key));
             size--;
@@ -90,23 +96,29 @@ public class HashMap<K, V> implements Serializable {
         @SuppressWarnings("unchecked")
         public K1[] getKeys() {
             Object[] keys = new Object[bucket_kvps.size()];
+
             for (int i = 0; i < bucket_kvps.size(); i++)
                 keys[i] = bucket_kvps.at(i).getKey();
+
             return (K1[]) keys;
         }
 
         private int find(K1 key){
             int i = 0;
+
             for(KeyValuePair<K1, V1> pair : bucket_kvps)
                 if(pair.getKey().equals(key))
                     return i;
                 else i++;
+
             return -1;
         }
 
         public V1 getValue(K1 key) {
             int idx = find(key);
+
             if(idx == -1) return null;
+
             return bucket_kvps.at(idx).getValue();
         }
 
@@ -140,6 +152,7 @@ public class HashMap<K, V> implements Serializable {
      */
     public void put(K key, V value) {
         int index = indexGenerator(key);
+
         if(buckets[index] == null)
             buckets[index] = new Bucket<>(key, value);
         else
@@ -155,7 +168,9 @@ public class HashMap<K, V> implements Serializable {
      */
     public V get(K key) {
         int index = indexGenerator(key);
+
         if(buckets[index] == null) return null;
+
         return buckets[index].getValue(key);
     }
 
@@ -167,8 +182,10 @@ public class HashMap<K, V> implements Serializable {
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Object[] keys = new Object[generalKeys.size()];
+
         for (int i = 0; i < generalKeys.size(); i++)
             keys[i] =  generalKeys.at(i);
+
         return (K[]) keys;
     }
 
@@ -180,11 +197,13 @@ public class HashMap<K, V> implements Serializable {
      */
     public K[] getKeys(Predicate<K> condition){
         DynamicArray<K> arr = new DynamicArray<>();
+
         for (int i = 0; i < generalKeys.size(); i++) {
             K key = generalKeys.at(i);
             if (condition.test(key))
                 arr.pushBack(key);
         }
+
         return arr.toArray();
     }
 
@@ -195,7 +214,9 @@ public class HashMap<K, V> implements Serializable {
      */
     public void remove(K key){
         int index = indexGenerator(key);
+
         if(buckets[index] == null) return;
+
         buckets[index].removeKeyValuePair(key);
     }
 
@@ -207,9 +228,12 @@ public class HashMap<K, V> implements Serializable {
      */
     public boolean contains(K key){
         int index = indexGenerator(key);
+
         if(buckets[index] == null) return false;
+
         for(K key_ : buckets[index].getKeys())
             if(key_.equals(key)) return true;
+
         return false;
     }
 
@@ -244,12 +268,15 @@ public class HashMap<K, V> implements Serializable {
      */
     private BigInteger hashCode(K key){
         if(key == null) throw new IllegalArgumentException("Key is null!");
+
         String ky = key.toString();
-        int length = ky.length();
         BigInteger sum = BigInteger.ZERO;
         BigInteger base = BigInteger.valueOf(31);
+        int length = ky.length();
+
         for (char c: ky.toCharArray())
             sum = sum.add(BigInteger.valueOf((int) c).multiply(base.pow(length--)));
+
         return sum;
     }
 
@@ -263,12 +290,14 @@ public class HashMap<K, V> implements Serializable {
         //int hash = 5381;
         BigInteger hash = BigInteger.valueOf(5381);
         String key_ = key.toString();
+
         for (int i = 0; i < key_.length(); i++)
             hash =  BigInteger
                     .valueOf((long) hash.intValue() << 5 )
                     .add(hash)
                     .add(BigInteger.valueOf(key_.charAt(i)));
             //hash = ((hash << 5) + hash) + key_.charAt(i);
+
         return hash;
     }
 
@@ -294,10 +323,12 @@ public class HashMap<K, V> implements Serializable {
      */
     public void update(Predicate<K> condition, KeyUpdater<K, V> keyUpdate){
         K[] keys = getKeys(condition);
+
         for (int i = 0; i < keys.length; i++) {
             K oldKey = keys[i];
             V value = get(oldKey);
             K newKey = keyUpdate.update(oldKey, value);
+
             remove(oldKey);
             put(newKey, value);
         }
@@ -310,6 +341,7 @@ public class HashMap<K, V> implements Serializable {
      */
     public void remove(Predicate<K> condition){
         K[] keys = getKeys(condition);
+
         for (int i = 0; i < keys.length; i++)
             remove(keys[i]);
     }
@@ -320,6 +352,7 @@ public class HashMap<K, V> implements Serializable {
     @SuppressWarnings("unchecked")
     public void clear(){
         buckets = new Bucket[DEFAULT_CAPACITY];
+
         generalKeys.clear();
         size = generalKeys.size();
     }

@@ -7,6 +7,7 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileBrowser;
 
 import java.io.File;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -16,12 +17,14 @@ import java.util.Objects;
  */
 public class FileEntity implements Comparable<FileEntity>, Serializable {
 
+    @Serial
+    private static final long serialVersionUID = -426966613821083410L;
     private FileEntity fileEntityParent;
     private FileTypes fileTypes;
-    private Path directoryPath;
     private LocalDateTime modificationDate;
-    private final LocalDateTime creationDate;
     private String name;
+    private final Path directoryPath;
+    private final LocalDateTime creationDate;
     //private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public FileEntity(String name, FileTypes type, Path directoryPath, LocalDateTime modificationDate) {
@@ -82,6 +85,8 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         //example: "Disk D/folder1/filename"
         if(this.fileEntityParent != null)
             return this.fileEntityParent.getPath().resolve(this.name);
+
+        assert directoryPath != null;
         return directoryPath.resolve(name);
     }
 
@@ -89,6 +94,7 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         //example: "Disk D/folder1"
         if(this.fileEntityParent != null)
             return this.fileEntityParent.getPath();
+
         return directoryPath;
     }
 
@@ -132,7 +138,9 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
             case DIRECTACCESS_VIRTUALDISK -> "imgs/virtualdisk_da.png";
             default -> null; // no delete
         };
+
         if (PATH == null) return null;
+
         File file = new File(Objects
                 .requireNonNull(FileBrowser.class.getResource(PATH))
                 .getPath().substring(1));
@@ -150,7 +158,6 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
         ImageView imageView = getImageView();
         Label name = new Label(this.name);
 
-        //
         name.setLayoutX(25);
         imageView.setFitWidth(15);
         imageView.setFitHeight(15);
@@ -195,6 +202,7 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
      * @return A deep copy of this file entity.
      */
     public FileEntity deepCopy(){
+
         switch (this) {
             case VirtualDiskDriver _ -> {
                 return new VirtualDiskDriver(name, directoryPath, modificationDate, creationDate);
@@ -218,8 +226,10 @@ public class FileEntity implements Comparable<FileEntity>, Serializable {
             }
             default -> {}
         }
+
         if(fileEntityParent == null)
             return new FileEntity(name, fileTypes, directoryPath, modificationDate, creationDate);
+
         return new FileEntity(name, fileTypes, fileEntityParent, modificationDate, creationDate);
     }
 

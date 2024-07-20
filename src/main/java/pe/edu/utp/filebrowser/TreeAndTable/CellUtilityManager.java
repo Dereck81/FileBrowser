@@ -26,6 +26,7 @@ public class CellUtilityManager {
             return handleSelectedCellPressedTableView((TableView<?>) tv, event);
         else if (tv instanceof TreeView)
             return handleSelectedCellPressedTreeView((TreeView<?>) tv, event);
+
         return false;
     }
 
@@ -39,7 +40,9 @@ public class CellUtilityManager {
     private static boolean handleSelectedCellPressedTableView(TableView<?> tv, MouseEvent event){
         int idxSelected = tv.getSelectionModel().getSelectedIndex();
         TableCell<?, ?> source = getTableCell(event.getTarget());
+
         if(source == null || idxSelected == -1) return false;
+
         return source.getTableRow().getIndex() == idxSelected;
     }
 
@@ -53,7 +56,9 @@ public class CellUtilityManager {
     private static boolean handleSelectedCellPressedTreeView(TreeView<?> tv, MouseEvent event){
         int idxSelected = tv.getSelectionModel().getSelectedIndex();
         TreeCell<?> source = getTreeCell(event.getTarget());
+
         if(source == null || idxSelected == -1) return false;
+
         return source.getIndex() == idxSelected;
     }
 
@@ -65,7 +70,9 @@ public class CellUtilityManager {
      */
     public static TableCell<?, ?> getTableCell(EventTarget eventTarget){
         Object element = getTableCellRecursively((Node) eventTarget);
+
         if(element instanceof TableCell) return (TableCell<?, ?>) element;
+
         return null;
     }
 
@@ -77,7 +84,9 @@ public class CellUtilityManager {
      */
     public static TreeCell<?> getTreeCell(EventTarget eventTarget){
         Object element = getTreeCellRecursively((Node) eventTarget);
+
         if(element instanceof TreeCell) return (TreeCell<?>) element;
+
         return null;
     }
 
@@ -90,6 +99,7 @@ public class CellUtilityManager {
     private static Node getTableCellRecursively(Node element){
         if(element == null) return null;
         if(element instanceof TableCell) return element;
+
         return getTableCellRecursively(element.getParent());
     }
 
@@ -102,6 +112,7 @@ public class CellUtilityManager {
     private static Node getTreeCellRecursively(Node element){
         if(element == null) return null;
         if(element instanceof TreeCell) return element;
+
         return getTreeCellRecursively(element.getParent());
     }
 

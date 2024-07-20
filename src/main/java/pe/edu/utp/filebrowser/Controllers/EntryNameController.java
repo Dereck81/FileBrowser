@@ -44,14 +44,17 @@ public class EntryNameController {
     @FXML
     private void buttonAction(){
         nameInput = textFieldName.getText();
+
         if(nameInputIsValid() && !nameInput.isBlank()){
             JavaFXGlobalExceptionHandler.alertWarning(
                     "Name entry",
                     "Invalid name",
                     "The name you entered is not valid, please try again."
             );
+
             return;
         }
+
         this.name = nameInput;
         getStage().close();
     }
@@ -126,9 +129,11 @@ public class EntryNameController {
             case DIRECTACCESS_VIRTUALDISK -> "imgs/virtualdisk_da.png";
             default -> "imgs/unkown.png";
         };
+
         File file = new File(Objects
                 .requireNonNull(FileBrowser.class.getResource(path))
                 .getPath().substring(1));
+
         imageView.setImage(new Image(file.toURI().toString()));
     }
 

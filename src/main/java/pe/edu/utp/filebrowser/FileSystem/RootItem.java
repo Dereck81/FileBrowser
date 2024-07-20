@@ -7,13 +7,17 @@ import pe.edu.utp.filebrowser.Enums.FileTypes;
 import pe.edu.utp.filebrowser.FileBrowser;
 
 import java.io.File;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class RootItem extends FileEntity implements Serializable {
-    private String name;
-    private FileTypes fileType;
+
+    @Serial
+    private static final long serialVersionUID = -4946079389592497034L;
+    private final String name;
+    private final FileTypes fileType;
 
     public RootItem(String name, FileTypes fileType) {
         super(null, null, new Path(Path.separatorToUse), null);
@@ -34,6 +38,7 @@ public class RootItem extends FileEntity implements Serializable {
 
     public Pane getPane(){
         String path = null;
+
         if (fileType == FileTypes.DIRECTACCESS) path = "imgs/da.png";
         else if (fileType == FileTypes.PC) path = "imgs/pc.png";
 
@@ -46,7 +51,9 @@ public class RootItem extends FileEntity implements Serializable {
             File file = new File(Objects
                     .requireNonNull(FileBrowser.class.getResource(path))
                     .getPath().substring(1));
+
             ImageView imageView = new ImageView(file.toURI().toString());
+
             imageView.setFitWidth(15);
             imageView.setFitHeight(15);
             imageView.setX(5);

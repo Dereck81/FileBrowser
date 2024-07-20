@@ -16,17 +16,18 @@ public class SystemElementCreator {
      * @throws Exception If an error occurs during file or directory creation.
      */
     public static void createFileSystemStructure(FileNode root, String dest) throws Exception {
-        Path target = Path.of(dest, root.getFile().getPath().getPath());
+        Path target = Path.of(dest, root.getFile().getName());
+
         if(root.getFile() instanceof VirtualDiskDriver || root.getFile() instanceof Folder)
-            try {Files.createDirectory(target);}
-            catch (Exception _){}
+            try {Files.createDirectory(target);} catch (Exception _){}
         else if(root.getFile() instanceof PlainText)
             IO.saveData(((PlainText) root.getFile()).getContent(),
-                    target+".txt", false);
+                    String.valueOf(target), false);
 
-        System.out.println(target);
+        System.out.println("creating: "+target);
+
         for (FileNode child : root.getChildren())
-            createFileSystemStructure(child, dest);
+            createFileSystemStructure(child, target.toString());
 
     }
 

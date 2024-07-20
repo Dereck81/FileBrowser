@@ -1,5 +1,6 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -10,6 +11,9 @@ import java.util.NoSuchElementException;
  */
 
 public class DynamicArray<T> implements Iterable<T>, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -8102157520166196885L;
 	private T[] arr;
 	private int size;
 	private int capacity;

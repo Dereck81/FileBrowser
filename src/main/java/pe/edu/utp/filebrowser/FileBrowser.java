@@ -15,10 +15,12 @@ import java.util.Objects;
 public class FileBrowser extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
+        //Thread.setDefaultUncaughtExceptionHandler(new JavaFXGlobalExceptionHandler());
+
         FXMLLoader fxmlLoader = new FXMLLoader(FileBrowser.class.getResource("FileBrowser.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1077, 620);
         FileBrowserController controller = fxmlLoader.getController();
+
         scene.getStylesheets().add(Objects
                 .requireNonNull(getClass().getResource("style/style.css")).toExternalForm());
         scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
@@ -27,11 +29,14 @@ public class FileBrowser extends Application {
             }
             //System.out.println(keyEvent.getCode().getName());
         });
+
         stage.setOnCloseRequest(_ -> controller.quit());
         stage.setTitle("File Browser");
         stage.setScene(scene);
         stage.setResizable(false);
+
         controller.setStage(stage);
+
         stage.show();
     }
 

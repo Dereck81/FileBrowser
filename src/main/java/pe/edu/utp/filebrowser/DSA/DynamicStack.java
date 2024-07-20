@@ -1,10 +1,14 @@
 package pe.edu.utp.filebrowser.DSA;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 public class DynamicStack<T> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = -1485230777315171430L;
     private final DynamicArray<T> arr;
     private int top;
 

@@ -22,15 +22,17 @@ public class IO {
      */
     public static ArrayList<String> readRecordRecentFiles(){
         ArrayList<String> data;
+
         try(BufferedReader fi = new BufferedReader(new FileReader(_FILELOG_))){
             data = new ArrayList<>();
             String line;
-            while((line = fi.readLine()) != null){
-                data.add(line);
-            }
+
+            while((line = fi.readLine()) != null) data.add(line);
+
         }catch (IOException e){
             return new ArrayList<>();
         }
+
         return data;
     }
 
@@ -41,14 +43,15 @@ public class IO {
     public static void writeRecordRecentFiles(String path){
         File filelog = new File(_FILELOG_);
         ArrayList<String> content = IO.readRecordRecentFiles();
-        if (content.size() > _CANTRECENTFILES_) {
+
+        if (content.size() > _CANTRECENTFILES_)
             content.removeLast();
-        }
 
         try(FileWriter fileW = new FileWriter(filelog)){
             fileW.write(path+"\n");
             content.removeIf(path_i -> path_i.equals(path));
             fileW.write(String.join("\n", content.toArray(new String[0])));
+
         }catch (IOException e){
             System.err.println(e.getMessage());
         }
@@ -61,7 +64,9 @@ public class IO {
     public static void deleteRecentFilesRecord(String path){
         File filelog = new File(_FILELOG_);
         ArrayList<String> content = IO.readRecordRecentFiles();
+
         content.removeIf(path_i -> path_i.equals(path));
+
         try(FileWriter fileW = new FileWriter(filelog)){
             fileW.write(String.join("\n", content.toArray(new String[0])));
         }catch (IOException e){
@@ -81,7 +86,9 @@ public class IO {
         try(FileWriter fileW = new FileWriter(filePath)){
             fileW.write(content);
         }
+
         if(!showAlert) return;
+
         WindowsGlobalExceptionHandler.alertInformation(
                 "Information",
                 "the file was exported successfully");

@@ -40,6 +40,7 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
      */
     private static Throwable getFinalCause(Throwable e) {
         if(e.getCause() == null) return e;
+
         return getFinalCause(e.getCause());
     }
 
@@ -89,8 +90,11 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
         ButtonType yes = new ButtonType("Yes"); // true
         ButtonType no = new ButtonType("No"); // false
         ButtonType cancel = new ButtonType("Cancel"); // null
+
         AtomicReference<ConfirmationOptions> confirmationOption = new AtomicReference<>(ConfirmationOptions.YES);
+
         Alert alert = getAlert(title, header, contextText, Alert.AlertType.CONFIRMATION);
+
         alert.getButtonTypes().setAll(yes, no, cancel);
         alert.showAndWait().ifPresent(action -> {
             if(action == yes)
@@ -100,6 +104,7 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
             else
                 confirmationOption.set(ConfirmationOptions.CANCEL);
         });
+
         return confirmationOption.get();
     }
 
@@ -127,12 +132,14 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
      */
     private static Alert getAlert(String title, String header, String contextText, Alert.AlertType at){
         Alert alert = new Alert(at);
+
         alert.getDialogPane().getStylesheets()
                 .add(Objects.requireNonNull(FileBrowser.class.getResource("style/style.css"))
                         .toExternalForm());
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(contextText);
+
         return alert;
     }
 

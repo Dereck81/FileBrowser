@@ -144,6 +144,7 @@ public class FileBrowserController {
         setupFileChoosers();
         setupTableView();
         setupTreeView();
+        updateRecentFiles();
         createSubWindows();
     }
 
@@ -667,21 +668,60 @@ public class FileBrowserController {
             );
             return;
         }
-        if(labelAction.getText().equals("Cut"))
-            pasteFileEntityCut();
-        else if (labelAction.getText().equals("Copy"))
-            pasteFileEntityCopy();
-    }
 
-    private void pasteFileEntityCut(){
-        FileEntity fe = fileTransferStack.pop();
-
-        if(fe == null) return;
+        FileEntity fe = fileTransferStack.peek();
 
         if(fe.getDirectoryPath() == pathIsSelected) {
             resetInformationPane();
             return;
         }
+
+        boolean newName = false;
+
+        if(isDuplicateFileNameInPath(fe.getName())){
+            do {
+                runSubWindow(fe.getName(), "Change Name (duplicate)", fe.getFileType());
+
+                if (entryNameController.getName().isEmpty()) return;
+
+            } while (isDuplicateFileNameInPath(entryNameController.getName()));
+
+            newName = true;
+        }
+
+        if(labelAction.getText().equals("Cut"))
+            pasteFileEntityCut(newName);
+        else if (labelAction.getText().equals("Copy"))
+            pasteFileEntityCopy(newName);
+    }
+
+    private void pasteFileEntityCut(boolean newName){
+        FileEntity fe = fileTransferStack.pop();
+
+        if(fe == null) return;
+
+        // edit name
+
+        if (newName) {
+            Path oldPath_ = fe.getPath();
+
+            if (fe instanceof DirectAccess) {
+                fe.setName(entryNameController.getName());
+                updateFAT(oldPath_, fileAssignmentTable);
+                updateFAT(oldPath_, fileAssignmentTableDA);
+                return;
+            }
+
+            fileFSTree.updateFilename(fe, entryNameController.getName());
+
+            updateFAT(oldPath_, fileAssignmentTable);
+
+            tableView.refresh();
+            treeViewMP.refresh();
+            treeViewDA.refresh();
+        }
+
+        //
 
         Path oldPath = fe.getPath();
 
@@ -706,20 +746,20 @@ public class FileBrowserController {
         resetInformationPane();
     }
 
-    private void pasteFileEntityCopy(){
+    private void pasteFileEntityCopy(boolean newName){
         FileEntity fe = fileTransferStack.pop();
 
         if(fe == null) return;
 
-        if(fe.getDirectoryPath() == pathIsSelected) {
-            resetInformationPane();
-            return;
+        if(newName){
+            if (!fileFSTree.copy(fe, entryNameController.getName(), pathIsSelected))
+                return;
+        }else{
+            if(!fileFSTree.copy(fe, pathIsSelected)) return;
         }
 
-        if(!fileFSTree.copy(fe, pathIsSelected)) return;
-
         TreeItem<FileEntity> newTI = rebuildFSTree(fileFSTree.getNode(pathIsSelected));
-        fileAssignmentTable.get(pathIsSelected).getChildren().addAll(newTI.getChildren());
+        fileAssignmentTable.get(pathIsSelected).getChildren().setAll(newTI.getChildren()); // addAll
 
         treeViewDA.refresh();
         treeViewMP.refresh();
@@ -832,6 +872,17 @@ public class FileBrowserController {
                 "File export completed",
                 "All files created in the program were exported."
         );
+    }
+
+    private Boolean isDuplicateFileNameInPath(String fileName){
+        // Based on the windows file system
+        String path = pathIsSelected.getPath().replaceAll("\\\\", "\\\\\\\\");
+        String regex = "^"+path+"("+Path.separatorToUseRgx+")"+fileName.toLowerCase()+"$";
+        Predicate<Path> condition = key -> key.getPath().toLowerCase().matches(regex);
+
+        Object[] keys = fileAssignmentTable.getKeys(condition);
+
+        return keys.length > 0;
     }
 
     @FXML
@@ -1276,6 +1327,7 @@ public class FileBrowserController {
     protected void test(){
     }
 
+    @FXML
     private void resetApplication(){
         ForwardPathStack.clear();
         BackwardPathStack.clear();

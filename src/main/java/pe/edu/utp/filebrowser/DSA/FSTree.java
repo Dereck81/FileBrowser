@@ -19,7 +19,7 @@ import pe.edu.utp.filebrowser.FileSystem.Path;
 public class FSTree implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = -2025712870190683690L;
+    private static final long serialVersionUID = -2285423942576424695L;
     private FileNode root;
     private final HashMap<String, FileNode> lookupTable;
 
@@ -114,6 +114,10 @@ public class FSTree implements Serializable {
         );
         
         if(lookupTable != null) lookupTable.clear();
+
+        assert lookupTable != null;
+
+        lookupTable.put(root.getFile().getPath().toString(), root);
     }
 
     /**
@@ -171,6 +175,28 @@ public class FSTree implements Serializable {
     }
 
     /**
+     * Copies a FileEntity and its subtree to a new directory with a new name.
+     *
+     * @param fe the FileEntity to copy
+     * @param newName the new name for the copied FileEntity
+     * @param dest the destination directory path
+     * @return true if the file was copied successfully, otherwise false
+     */
+    public boolean copy(FileEntity fe, String newName, Path dest){
+        FileNode fn = lookupTable.get(fe.getPath().toString());
+
+        if(fn == null) return false;
+
+        FileNode newParentNode = lookupTable.get(dest.getPath());
+
+        if(newParentNode == null) return false;
+
+        cloneSubtreeAndInsert(fn, newName, newParentNode);
+
+        return true;
+    }
+
+    /**
      * Recursively clones a subtree and inserts it into the specified parent node.
      *
      * @param fn the FileNode to clone
@@ -179,6 +205,29 @@ public class FSTree implements Serializable {
     private void cloneSubtreeAndInsert(FileNode fn, FileNode parent){
         FileEntity clonedFileEntity = fn.getFile().deepCopy();
         
+        clonedFileEntity.setFileEntityParent(parent.getFile());
+
+        if (push(clonedFileEntity)) {
+            FileNode clonedNode = lookupTable.get(clonedFileEntity.getPath().toString());
+
+            for (FileNode child : fn.getChildren()) {
+                cloneSubtreeAndInsert(child, clonedNode);
+            }
+        }
+    }
+
+    /**
+     * Recursively clones a subtree and inserts it into the specified parent node with a new name.
+     *
+     * @param fn the FileNode to clone
+     * @param newName the new name for the cloned FileEntity
+     * @param parent the parent node to insert the cloned subtree into
+     */
+    private void cloneSubtreeAndInsert(FileNode fn, String newName, FileNode parent){
+        FileEntity clonedFileEntity = fn.getFile().deepCopy();
+
+        clonedFileEntity.setName(newName);
+
         clonedFileEntity.setFileEntityParent(parent.getFile());
 
         if (push(clonedFileEntity)) {

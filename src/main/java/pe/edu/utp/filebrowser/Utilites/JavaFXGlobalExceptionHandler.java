@@ -87,22 +87,44 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
      * @return the user's chosen ConfirmationOptions (YES, NO, or CANCEL)
      */
     public static ConfirmationOptions alertConfirmation(String title, String header, String contextText){
-        ButtonType yes = new ButtonType("Yes"); // true
-        ButtonType no = new ButtonType("No"); // false
-        ButtonType cancel = new ButtonType("Cancel"); // null
+        return alertConfirmation(title, header, contextText,
+                ConfirmationOptions.YES, ConfirmationOptions.NO, ConfirmationOptions.CANCEL);
+    }
 
-        AtomicReference<ConfirmationOptions> confirmationOption = new AtomicReference<>(ConfirmationOptions.YES);
+    /**
+     * Displays a confirmation alert with three customizable options.
+     *
+     * @param title       the title of the alert
+     * @param header      the header text of the alert
+     * @param contextText the content text of the alert
+     * @param option1     the first option to display on the alert
+     * @param option2     the second option to display on the alert
+     * @param option3     the third option to display on the alert
+     * @param <ENM>       the enum type of the options
+     * @return the user's chosen option (one of option1, option2, or option3)
+     */
+    public static <ENM> ENM alertConfirmation(String title, String header, String contextText,
+                                              ENM option1, ENM option2, ENM option3){
+
+        if(!option1.getClass().isEnum())
+            throw new IllegalArgumentException("The options entered are not an enumeration.");
+
+        ButtonType BT1 = new ButtonType(capitalize(option1.toString().toLowerCase()));
+        ButtonType BT2 = new ButtonType(capitalize(option2.toString().toLowerCase()));
+        ButtonType BT3 = new ButtonType(capitalize(option3.toString().toLowerCase()));
+
+        AtomicReference<ENM> confirmationOption = new AtomicReference<>(option1);
 
         Alert alert = getAlert(title, header, contextText, Alert.AlertType.CONFIRMATION);
 
-        alert.getButtonTypes().setAll(yes, no, cancel);
+        alert.getButtonTypes().setAll(BT1, BT2, BT3);
         alert.showAndWait().ifPresent(action -> {
-            if(action == yes)
-                confirmationOption.set(ConfirmationOptions.YES);
-            else if (action == no)
-                confirmationOption.set(ConfirmationOptions.NO);
+            if(action == BT1)
+                confirmationOption.set(option1);
+            else if (action == BT2)
+                confirmationOption.set(option2);
             else
-                confirmationOption.set(ConfirmationOptions.CANCEL);
+                confirmationOption.set(option3);
         });
 
         return confirmationOption.get();
@@ -141,6 +163,19 @@ public class JavaFXGlobalExceptionHandler implements Thread.UncaughtExceptionHan
         alert.setContentText(contextText);
 
         return alert;
+    }
+
+    /**
+     * Capitalizes the first character of the given text.
+     *
+     * @param text the input text to be capitalized
+     * @return the capitalized text, or an empty string if the input is null, empty, or blank
+     */
+    private static String capitalize(String text){
+        if(text == null || text.isEmpty() || text.isBlank())
+            return null;
+
+        return String.valueOf(text.charAt(0)).toUpperCase()+text.substring(1);
     }
 
 }

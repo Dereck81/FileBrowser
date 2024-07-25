@@ -660,6 +660,8 @@ public class FileBrowserController {
     }
 
     private void pasteFileEntity(){
+        if(fileTransferStack.isEmpty()) return;
+
         if(pathIsSelected == rootPath) {
             JavaFXGlobalExceptionHandler.alertError(
                     "Error",
@@ -679,14 +681,30 @@ public class FileBrowserController {
         boolean newName = false;
 
         if(isDuplicateFileNameInPath(fe.getName())){
-            do {
-                runSubWindow(fe.getName(), "Change Name (duplicate)", fe.getFileType());
 
-                if (entryNameController.getName().isEmpty()) return;
+            ConfirmationOptions co = JavaFXGlobalExceptionHandler.alertConfirmation(
+                    "Conflicts",
+                    "Conflicts between files",
+                    "There seem to be files with the same name, what action do you want to take?",
+                    ConfirmationOptions.RENAME, ConfirmationOptions.OVERWRITE, ConfirmationOptions.CANCEL
+            );
 
-            } while (isDuplicateFileNameInPath(entryNameController.getName()));
+            if (co == ConfirmationOptions.CANCEL) return;
+            else if (co == ConfirmationOptions.OVERWRITE)
+                removeFE(
+                        fileAssignmentTable.get(
+                                pathIsSelected.resolve(fe.getName())).getValue()
+                );
+            else{ // ConfirmationOptions.RENAME
+                do {
+                    runSubWindow(fe.getName(), "Change Name (duplicate)", fe.getFileType());
 
-            newName = true;
+                    if (entryNameController.getName().isEmpty()) return;
+
+                } while (isDuplicateFileNameInPath(entryNameController.getName()));
+
+                newName = true;
+            }
         }
 
         if(labelAction.getText().equals("Cut"))
@@ -797,6 +815,12 @@ public class FileBrowserController {
         );
 
         if (co != ConfirmationOptions.YES) return;
+
+        removeFE(fe);
+    }
+
+    private void removeFE(FileEntity fe) {
+        if (fe == null) return;
 
         TreeItem<FileEntity> parent = fileAssignmentTable.get(fe.getDirectoryPath());
         TreeItem<FileEntity> child = fileAssignmentTable.get(fe.getPath());

@@ -557,6 +557,8 @@ public class FileBrowserController {
             updateRecentFiles();
             throw new FileNotFoundException("File not found: " + pathRecentFile);
         }
+
+        deserializeEverything(file);
     }
 
     /**
@@ -662,7 +664,7 @@ public class FileBrowserController {
     private void pasteFileEntity(){
         if(fileTransferStack.isEmpty()) return;
 
-        if(pathIsSelected == rootPath) {
+        if(pathIsSelected.equals(rootPath)) {
             JavaFXGlobalExceptionHandler.alertError(
                     "Error",
                     "Error when pasting file",
@@ -898,7 +900,7 @@ public class FileBrowserController {
         );
     }
 
-    private Boolean isDuplicateFileNameInPath(String fileName){
+    private boolean isDuplicateFileNameInPath(String fileName){
         // Based on the windows file system
         String path = pathIsSelected.getPath().replaceAll("\\\\", "\\\\\\\\");
         String regex = "^"+path+"("+Path.separatorToUseRgx+")"+fileName.toLowerCase()+"$";
@@ -907,6 +909,33 @@ public class FileBrowserController {
         Object[] keys = fileAssignmentTable.getKeys(condition);
 
         return keys.length > 0;
+    }
+
+    public void copyKeyCombination(){
+        FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+        if(fe != null) copyFileEntity(fe);
+    }
+
+    public void pasteKeyCombination(){
+        pasteFileEntity();
+    }
+
+    public void cutKeyCombination(){
+        FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+        if(fe != null) cutFileEntity(fe);
+    }
+
+    public void createFileHardDiskKC() throws Exception {
+        FileEntity fe = tableView.getSelectionModel().getSelectedItem();
+        if (fe != null) convertToPhysicalDirectory();
+    }
+
+    public void saveFileKeyCombination(){
+        saveFile();
+    }
+
+    public void openKeyCombination(){
+        openFile();
     }
 
     @FXML

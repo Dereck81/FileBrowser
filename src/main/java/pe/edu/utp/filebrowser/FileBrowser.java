@@ -30,6 +30,8 @@ public class FileBrowser extends Application {
         KeyCombination copy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
         KeyCombination cut = new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_ANY);
         KeyCombination paste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
+        KeyCombination save = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_ANY);
+        KeyCombination open = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_ANY);
         KeyCombination createFileDirectoryHardDisk = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_ANY);
 
         scene.getStylesheets().add(Objects
@@ -41,17 +43,33 @@ public class FileBrowser extends Application {
             }
 
             if(copy.match(keyEvent)){
-
+                controller.copyKeyCombination();
                 keyEvent.consume();
+
             } else if (paste.match(keyEvent)) {
-
+                controller.pasteKeyCombination();
                 keyEvent.consume();
-            } else if (cut.match(keyEvent)){
 
+            } else if (cut.match(keyEvent)) {
+                controller.cutKeyCombination();
                 keyEvent.consume();
+
+            } else if (save.match(keyEvent)) {
+                controller.saveFileKeyCombination();
+                keyEvent.consume();
+
+            } else if (open.match(keyEvent)){
+                controller.openKeyCombination();
+                keyEvent.consume();
+
             } else if (createFileDirectoryHardDisk.match(keyEvent)){
-
+                try {
+                    controller.createFileHardDiskKC();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 keyEvent.consume();
+
             }
             //System.out.println(keyEvent.getCode().getName());
         });

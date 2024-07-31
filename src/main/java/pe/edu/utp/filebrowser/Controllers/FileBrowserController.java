@@ -912,29 +912,35 @@ public class FileBrowserController {
     }
 
     public void copyKeyCombination(){
+        if(paneTextEditor.isVisible()) return;
         FileEntity fe = tableView.getSelectionModel().getSelectedItem();
         if(fe != null) copyFileEntity(fe);
     }
 
     public void pasteKeyCombination(){
+        if(paneTextEditor.isVisible()) return;
         pasteFileEntity();
     }
 
     public void cutKeyCombination(){
+        if(paneTextEditor.isVisible()) return;
         FileEntity fe = tableView.getSelectionModel().getSelectedItem();
         if(fe != null) cutFileEntity(fe);
     }
 
     public void createFileHardDiskKC() throws Exception {
+        if(paneTextEditor.isVisible()) return;
         FileEntity fe = tableView.getSelectionModel().getSelectedItem();
         if (fe != null) convertToPhysicalDirectory();
     }
 
     public void saveFileKeyCombination(){
+        if(paneTextEditor.isVisible()) return;
         saveFile();
     }
 
     public void openKeyCombination(){
+        if(paneTextEditor.isVisible()) return;
         openFile();
     }
 

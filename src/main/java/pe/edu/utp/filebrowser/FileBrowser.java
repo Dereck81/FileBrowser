@@ -27,12 +27,12 @@ public class FileBrowser extends Application {
         Image icon = new Image(String.valueOf(Objects.requireNonNull(FileBrowser.class.getResource("imgs/Application.png")).toURI()));
         FileBrowserController controller = fxmlLoader.getController();
 
-        KeyCombination copy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
-        KeyCombination cut = new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_ANY);
-        KeyCombination paste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
-        KeyCombination save = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_ANY);
-        KeyCombination open = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_ANY);
-        KeyCombination createFileDirectoryHardDisk = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_ANY);
+        KeyCombination copy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
+        KeyCombination cut = new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN);
+        KeyCombination paste = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN);
+        KeyCombination save = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+        KeyCombination open = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
+        KeyCombination createFileDirectoryHardDisk = new KeyCodeCombination(KeyCode.B, KeyCombination.CONTROL_DOWN);
 
         scene.getStylesheets().add(Objects
                 .requireNonNull(getClass().getResource("style/style.css")).toExternalForm());
